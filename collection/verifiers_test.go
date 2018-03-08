@@ -62,7 +62,7 @@ func TestVerifiersVerify(test *testing.T) {
 	}
 
 	collection.root.transaction.inconsistent = true
-	ctx.should_panic("[verify]", func() {
+	ctx.shouldPanic("[verify]", func() {
 		collection.Verify(proof)
 	})
 }

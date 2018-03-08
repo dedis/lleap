@@ -48,19 +48,19 @@ func TestSha256(test *testing.T) {
 	check("[stringslicesliceslice]", "6645aa75ad111853acfcdbc3d00521f056eb889bcc6bb5a8fa6599b6d2535f4f", [][][]string{{{"hello", "world"}, {"this", "is"}}, {{"a", "test"}, {"to", "test"}}, {{"if"}, {"slices", "work", "correctly"}}, {}})
 	check("[variadic]", "c4746029b1ace69bea143f17e777bc749f0a6139842321de4f79fa938f1ad799", false, int8(4), int16(1024), int32(29854536), int64(27562875624), uint8(9), uint16(8785), uint32(973583475), uint64(9854398635453), "Hello variadic")
 
-	ctx.should_panic("[int]", func() {
+	ctx.shouldPanic("[int]", func() {
 		sha256(33)
 	})
 
-	ctx.should_panic("[float]", func() {
+	ctx.shouldPanic("[float]", func() {
 		sha256(33.4)
 	})
 
-	ctx.should_panic("[array]", func() {
+	ctx.shouldPanic("[array]", func() {
 		sha256([3]int32{1, 2, 3})
 	})
 
-	ctx.should_panic("[struct]", func() {
+	ctx.shouldPanic("[struct]", func() {
 		type dummy struct {
 			i int
 		}
@@ -68,7 +68,7 @@ func TestSha256(test *testing.T) {
 		sha256(dummy{3})
 	})
 
-	ctx.should_panic("[pointer]", func() {
+	ctx.shouldPanic("[pointer]", func() {
 		dummy := uint32(4)
 		sha256(&dummy)
 	})

@@ -66,11 +66,11 @@ func TestManipulatorsAdd(test *testing.T) {
 		ctx.verify.key("[transactioncollection]", &transaction, key)
 	}
 
-	ctx.should_panic("[wrongvalues]", func() {
+	ctx.shouldPanic("[wrongvalues]", func() {
 		collection.Add([]byte("panickey"))
 	})
 
-	ctx.should_panic("[wrongvalues]", func() {
+	ctx.shouldPanic("[wrongvalues]", func() {
 		keycollision.Add([]byte("panickey"), uint64(13))
 	})
 }
@@ -148,11 +148,11 @@ func TestManipulatorsSet(test *testing.T) {
 		ctx.verify.values("[transactioncollection]", &transaction, key, uint64(2*index))
 	}
 
-	ctx.should_panic("[wrongvalues]", func() {
+	ctx.shouldPanic("[wrongvalues]", func() {
 		collection.Set([]byte("panickey"))
 	})
 
-	ctx.should_panic("[wrongvalues]", func() {
+	ctx.shouldPanic("[wrongvalues]", func() {
 		collection.Set([]byte("panickey"), uint64(13), uint64(44))
 	})
 }
@@ -188,7 +188,7 @@ func TestManipulatorsSetField(test *testing.T) {
 		}
 	}
 
-	ctx.should_panic("[fieldoutofrange]", func() {
+	ctx.shouldPanic("[fieldoutofrange]", func() {
 		collection.SetField([]byte("key"), 5, []byte("data"))
 	})
 }

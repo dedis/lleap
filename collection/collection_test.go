@@ -160,7 +160,7 @@ func TestCollectionClone(test *testing.T) {
 		ctx.verify.values("[clone]", &clone, key, uint64(index), key)
 	}
 
-	ctx.should_panic("[clone]", func() {
+	ctx.shouldPanic("[clone]", func() {
 		collection.Begin()
 		collection.Clone()
 		collection.End()

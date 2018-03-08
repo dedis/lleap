@@ -110,23 +110,23 @@ func TestUpdateProxyMethods(test *testing.T) {
 		test.Error("[update.go]", "[remove]", "Proxy method remove() does not yield an error when removing a non-existing key.")
 	}
 
-	ctx.should_panic("[get]", func() {
+	ctx.shouldPanic("[get]", func() {
 		proxy.Get([]byte("otherkey"))
 	})
 
-	ctx.should_panic("[add]", func() {
+	ctx.shouldPanic("[add]", func() {
 		proxy.Add([]byte("otherkey"), uint64(12))
 	})
 
-	ctx.should_panic("[set]", func() {
+	ctx.shouldPanic("[set]", func() {
 		proxy.Set([]byte("otherkey"), uint64(12))
 	})
 
-	ctx.should_panic("[setfield]", func() {
+	ctx.shouldPanic("[setfield]", func() {
 		proxy.SetField([]byte("otherkey"), 0, uint64(12))
 	})
 
-	ctx.should_panic("[remove]", func() {
+	ctx.shouldPanic("[remove]", func() {
 		proxy.Remove([]byte("otherkey"))
 	})
 }
@@ -148,19 +148,19 @@ type TestUpdateSingleRecordUpdate struct {
 	record Proof
 }
 
-func (this TestUpdateSingleRecordUpdate) Records() []Proof {
-	return []Proof{this.record}
+func (t TestUpdateSingleRecordUpdate) Records() []Proof {
+	return []Proof{t.record}
 }
 
-func (this TestUpdateSingleRecordUpdate) Check(collection ReadOnly) bool {
-	return collection.Get(this.record.Key()).Match()
+func (t TestUpdateSingleRecordUpdate) Check(collection ReadOnly) bool {
+	return collection.Get(t.record.Key()).Match()
 }
 
-func (this TestUpdateSingleRecordUpdate) Apply(collection ReadWrite) {
-	values, _ := collection.Get(this.record.Key()).Values()
+func (t TestUpdateSingleRecordUpdate) Apply(collection ReadWrite) {
+	values, _ := collection.Get(t.record.Key()).Values()
 	value := values[0].(uint64)
 
-	collection.Set(this.record.Key(), value+1)
+	collection.Set(t.record.Key(), value+1)
 }
 
 type TestUpdateDoubleRecordUpdate struct {
@@ -168,30 +168,30 @@ type TestUpdateDoubleRecordUpdate struct {
 	to   Proof
 }
 
-func (this TestUpdateDoubleRecordUpdate) Records() []Proof {
-	return []Proof{this.from, this.to}
+func (t TestUpdateDoubleRecordUpdate) Records() []Proof {
+	return []Proof{t.from, t.to}
 }
 
-func (this TestUpdateDoubleRecordUpdate) Check(collection ReadOnly) bool {
-	if !(collection.Get(this.from.Key()).Match()) || !(collection.Get(this.to.Key()).Match()) {
+func (t TestUpdateDoubleRecordUpdate) Check(collection ReadOnly) bool {
+	if !(collection.Get(t.from.Key()).Match()) || !(collection.Get(t.to.Key()).Match()) {
 		return false
 	}
 
-	values, _ := collection.Get(this.from.Key()).Values()
+	values, _ := collection.Get(t.from.Key()).Values()
 	value := values[0].(uint64)
 
 	return value > 0
 }
 
-func (this TestUpdateDoubleRecordUpdate) Apply(collection ReadWrite) {
-	values, _ := collection.Get(this.from.Key()).Values()
+func (t TestUpdateDoubleRecordUpdate) Apply(collection ReadWrite) {
+	values, _ := collection.Get(t.from.Key()).Values()
 	from := values[0].(uint64)
 
-	values, _ = collection.Get(this.to.Key()).Values()
+	values, _ = collection.Get(t.to.Key()).Values()
 	to := values[0].(uint64)
 
-	collection.Set(this.from.Key(), from-1)
-	collection.Set(this.to.Key(), to+1)
+	collection.Set(t.from.Key(), from-1)
+	collection.Set(t.to.Key(), to+1)
 }
 
 func TestUpdatePrepare(test *testing.T) {
@@ -275,7 +275,7 @@ func TestUpdatePrepare(test *testing.T) {
 
 	collection.root.transaction.inconsistent = true
 
-	ctx.should_panic("[prepare]", func() {
+	ctx.shouldPanic("[prepare]", func() {
 		collection.Prepare(singlerecord)
 	})
 }
@@ -284,7 +284,7 @@ func TestUpdateApply(test *testing.T) {
 	ctx := testctx("[update.go]", test)
 
 	collection := New()
-	ctx.should_panic("[apply]", func() {
+	ctx.shouldPanic("[apply]", func() {
 		collection.Apply(33)
 	})
 }
@@ -418,7 +418,7 @@ func TestUpdateApplyUpdate(test *testing.T) {
 		test.Error("[update.go]", "[applyupdate]", "applyupdate() does not yield an error when applying an invalid update.")
 	}
 
-	ctx.should_panic("[applyupdate]", func() {
+	ctx.shouldPanic("[applyupdate]", func() {
 		collection.Apply(alicetobobupdate)
 	})
 }
@@ -463,7 +463,7 @@ func TestUpdateApplyUserUpdate(test *testing.T) {
 		test.Error("[update.go]", "[applyuserupdate]", "applyuserupdate() does not yield an error when applying an invalid user update.")
 	}
 
-	ctx.should_panic("[applyuserupdate]", func() {
+	ctx.shouldPanic("[applyuserupdate]", func() {
 		collection.Begin()
 
 		aliceproof, _ := collection.Get([]byte("alice")).Proof()

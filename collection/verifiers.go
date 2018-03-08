@@ -2,21 +2,21 @@ package collection
 
 // Methods (collection) (verifiers)
 
-func (this *Collection) Verify(proof Proof) bool {
-	if this.root.transaction.inconsistent {
+func (c *Collection) Verify(proof Proof) bool {
+	if c.root.transaction.inconsistent {
 		panic("Verify() called on inconsistent root.")
 	}
 
-	if (proof.root.Label != this.root.label) || !(proof.consistent()) {
+	if (proof.root.Label != c.root.label) || !(proof.consistent()) {
 		return false
 	}
 
-	if !(this.root.known) {
-		proof.root.to(this.root)
+	if !(c.root.known) {
+		proof.root.to(c.root)
 	}
 
 	path := sha256(proof.key)
-	cursor := this.root
+	cursor := c.root
 
 	for depth := 0; depth < len(proof.steps); depth++ {
 		if !(cursor.children.left.known) {

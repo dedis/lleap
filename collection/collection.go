@@ -5,7 +5,7 @@
 // distributed and decentralized ledgers with minimal bootstrapping time.
 package collection
 
-// Collection
+
 type Collection struct {
 	root   *node
 	fields []Field
@@ -55,18 +55,18 @@ func NewVerifier(fields ...Field) (verifier Collection) {
 
 // Methods
 
-func (this *Collection) Clone() (collection Collection) {
-	if this.transaction.ongoing {
+func (c *Collection) Clone() (collection Collection) {
+	if c.transaction.ongoing {
 		panic("Cannot clone a collection while a transaction is ongoing.")
 	}
 
 	collection.root = new(node)
 
-	collection.fields = make([]Field, len(this.fields))
-	copy(collection.fields, this.fields)
+	collection.fields = make([]Field, len(c.fields))
+	copy(collection.fields, c.fields)
 
-	collection.scope = this.scope.clone()
-	collection.autoCollect = this.autoCollect
+	collection.scope = c.scope.clone()
+	collection.autoCollect = c.autoCollect
 
 	collection.transaction.ongoing = false
 	collection.transaction.id = 0
@@ -90,13 +90,13 @@ func (this *Collection) Clone() (collection Collection) {
 		}
 	}
 
-	explore(collection.root, this.root)
+	explore(collection.root, c.root)
 
 	return
 }
 
 // GetRoot returns the root hash of the collection, which cryptographically
 // represents the whole set of key/value pairs in the collection.
-func (this *Collection) GetRoot() []byte {
-	return this.root.key
+func (c *Collection) GetRoot() []byte {
+	return c.root.key
 }

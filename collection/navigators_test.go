@@ -26,15 +26,15 @@ func TestNavigatorsConstructors(test *testing.T) {
 		test.Error("[navigators.go]", "[constructors]", "Navigator constructor sets wrong field value.")
 	}
 
-	ctx.should_panic("[constructors]", func() {
+	ctx.shouldPanic("[constructors]", func() {
 		collection.Navigate(3, uint64(14))
 	})
 
-	ctx.should_panic("[constructors]", func() {
+	ctx.shouldPanic("[constructors]", func() {
 		collection.Navigate(-1, uint64(14))
 	})
 
-	ctx.should_panic("[constructors]", func() {
+	ctx.shouldPanic("[constructors]", func() {
 		collection.Navigate(1, "wrongtype")
 	})
 }

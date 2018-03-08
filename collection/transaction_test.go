@@ -13,7 +13,7 @@ func TestTransactionBegin(test *testing.T) {
 		test.Error("[transaction.go]", "[begin]", "Begin() does not set the transaction flag.")
 	}
 
-	ctx.should_panic("[begin]", func() {
+	ctx.shouldPanic("[begin]", func() {
 		collection.Begin()
 	})
 }
@@ -105,7 +105,7 @@ func TestTransactionRollback(test *testing.T) {
 		test.Error("[transaction.go]", "[noautocollect]", "Collect() has no effect when AutoCollect is disabled.")
 	}
 
-	ctx.should_panic("[rollbackagain]", func() {
+	ctx.shouldPanic("[rollbackagain]", func() {
 		collection.Rollback()
 	})
 }
@@ -171,7 +171,7 @@ func TestTransactionEnd(test *testing.T) {
 
 	ctx.verify.scope("[scope]", &collection)
 
-	ctx.should_panic("[endagain]", func() {
+	ctx.shouldPanic("[endagain]", func() {
 		collection.End()
 	})
 }
@@ -255,16 +255,14 @@ func TestTransactionConfirm(test *testing.T) {
 		if node.leaf() {
 			if node.transaction.backup != nil {
 				return 1
-			} else {
-				return 0
 			}
-		} else {
-			if node.transaction.backup != nil {
-				return 1 + explore(node.children.left) + explore(node.children.right)
-			} else {
-				return explore(node.children.left) + explore(node.children.right)
-			}
+			return 0
 		}
+		offset := 0
+		if node.transaction.backup != nil {
+			offset = 1
+		}
+		return offset + explore(node.children.left) + explore(node.children.right)
 	}
 
 	count := explore(collection.root)

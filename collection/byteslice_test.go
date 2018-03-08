@@ -67,9 +67,8 @@ func TestBytesliceMatch(test *testing.T) {
 	min := func(lho, rho int) int {
 		if lho < rho {
 			return lho
-		} else {
-			return rho
 		}
+		return rho
 	}
 
 	type round struct {
@@ -116,15 +115,15 @@ func TestBytesliceDigest(test *testing.T) {
 		}
 	}
 
-	ctx.should_panic("[wrongsize]", func() {
+	ctx.shouldPanic("[wrongsize]", func() {
 		digest(make([]byte, 0))
 	})
 
-	ctx.should_panic("[wrongsize]", func() {
+	ctx.shouldPanic("[wrongsize]", func() {
 		digest(make([]byte, 1))
 	})
 
-	ctx.should_panic("[wrongsize]", func() {
+	ctx.shouldPanic("[wrongsize]", func() {
 		digest(make([]byte, csha256.Size-1))
 	})
 }
