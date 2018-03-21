@@ -79,6 +79,7 @@ type step struct {
 
 // Proof
 
+// Proof is an object representing the proof of presence or absence of a given key in a collection.
 type Proof struct {
 	collection *Collection
 	key        []byte
@@ -89,12 +90,15 @@ type Proof struct {
 
 // Getters
 
+// Key returns the key the proof proves the presence or absence.
 func (p Proof) Key() []byte {
 	return p.key
 }
 
 // Methods
 
+//Match returns true if the Proof asserts the presence of the key in the collection
+// and false if it asserts its absence..
 func (p Proof) Match() bool {
 	if len(p.steps) == 0 {
 		return false
@@ -109,6 +113,8 @@ func (p Proof) Match() bool {
 	return equal(p.key, p.steps[depth].Left.Key)
 }
 
+// Values returns a copy of the values of the key which presence is proved by the Proof.
+// It returns an error if the Proof proves the absence of the key.
 func (p Proof) Values() ([]interface{}, error) {
 	if len(p.steps) == 0 {
 		return []interface{}{}, errors.New("proof has no steps")
@@ -192,6 +198,8 @@ func (p Proof) consistent() bool {
 
 // Methods (collection) (serialization)
 
+// Serialize serialize a proof.
+// It transforms a given Proof into an array of byte, to allow easy exchange of proof, for example on a network.
 func (c *Collection) Serialize(proof Proof) []byte {
 	serializable := struct {
 		Key   []byte
@@ -203,6 +211,9 @@ func (c *Collection) Serialize(proof Proof) []byte {
 	return buffer
 }
 
+// Deserialize is the inverse of serialize.
+// It tansforms back a byte representation of a proof to a Proof object.
+// It will generate an error if the given byte array doesn't represent a Proof.
 func (c *Collection) Deserialize(buffer []byte) (Proof, error) {
 	deserializable := struct {
 		Key   []byte
@@ -210,10 +221,10 @@ func (c *Collection) Deserialize(buffer []byte) (Proof, error) {
 		Steps []step
 	}{}
 
-	error := protobuf.Decode(buffer, &deserializable)
+	err := protobuf.Decode(buffer, &deserializable)
 
-	if error != nil {
-		return Proof{}, error
+	if err != nil {
+		return Proof{}, err
 	}
 
 	return Proof{c, deserializable.Key, deserializable.Root, deserializable.Steps}, nil

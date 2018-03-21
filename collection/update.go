@@ -5,16 +5,19 @@ import csha256 "crypto/sha256"
 
 // Interfaces
 
-type userupdate interface {
+type userUpdate interface {
 	Records() []Proof
 	Check(ReadOnly) bool
 	Apply(ReadWrite)
 }
 
+// ReadOnly defines a set of methods needed to have a read-only collection.
+// It contains only a getter method, as it is the only method not modifying the collection.
 type ReadOnly interface {
 	Get([]byte) Record
 }
 
+// ReadWrite defines the set of methods needed to have a read-write collection.
 type ReadWrite interface {
 	Get([]byte) Record
 	Add([]byte, ...interface{}) error
@@ -27,7 +30,7 @@ type ReadWrite interface {
 
 type Update struct {
 	transaction uint64
-	update      userupdate
+	update      userUpdate
 	proxy       proxy
 }
 
@@ -105,7 +108,10 @@ func (p proxy) has(key []byte) bool {
 
 // Methods (collection) (update)
 
-func (c *Collection) Prepare(update userupdate) (Update, error) {
+// Prepare prepares the userUpdate to do an update.
+// It checks that every proof of the userUpdate is valid
+// and then creates an Update object ready to apply the collection update.
+func (c *Collection) Prepare(update userUpdate) (Update, error) {
 	if c.root.transaction.inconsistent {
 		panic("prepare() called on inconsistent root")
 	}
@@ -124,12 +130,14 @@ func (c *Collection) Prepare(update userupdate) (Update, error) {
 	return Update{c.transaction.id, update, c.proxy(keys)}, nil
 }
 
+// Apply applies the update on the collection.
+// If the update is not prepared, it will prepare it using the Prepare method.
 func (c *Collection) Apply(object interface{}) error {
 	switch update := object.(type) {
 	case Update:
-		return c.applyupdate(update)
-	case userupdate:
-		return c.applyuserupdate(update)
+		return c.applyUpdate(update)
+	case userUpdate:
+		return c.applyUserUpdate(update)
 	}
 
 	panic("apply() only accepts Update objects or objects that implement the update interface")
@@ -137,7 +145,7 @@ func (c *Collection) Apply(object interface{}) error {
 
 // Private methods (collection) (update)
 
-func (c *Collection) applyupdate(update Update) error {
+func (c *Collection) applyUpdate(update Update) error {
 	if update.transaction != c.transaction.id {
 		panic("update was not prepared during the current transaction")
 	}
@@ -157,11 +165,11 @@ func (c *Collection) applyupdate(update Update) error {
 	return nil
 }
 
-func (c *Collection) applyuserupdate(update userupdate) error {
-	preparedupdate, err := c.Prepare(update)
+func (c *Collection) applyUserUpdate(update userUpdate) error {
+	preparedUpdate, err := c.Prepare(update)
 	if err != nil {
 		return err
 	}
 
-	return c.Apply(preparedupdate)
+	return c.Apply(preparedUpdate)
 }

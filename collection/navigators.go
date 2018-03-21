@@ -2,7 +2,9 @@ package collection
 
 import "errors"
 
-type navigator struct {
+// Navigator is an object representing a search of a field's value on the collection.
+// It allows to get the record associated with a given value, as searched by the Navigate function of the field.
+type Navigator struct {
 	collection *Collection
 	field      int
 	query      []byte
@@ -10,17 +12,20 @@ type navigator struct {
 
 // Constructors
 
-func (c *Collection) Navigate(field int, value interface{}) navigator {
+// Navigate creates a Navigator associated with a given field and value.
+func (c *Collection) Navigate(field int, value interface{}) Navigator {
 	if (field < 0) || (field >= len(c.fields)) {
 		panic("Field unknown.")
 	}
 
-	return navigator{c, field, c.fields[field].Encode(value)}
+	return Navigator{c, field, c.fields[field].Encode(value)}
 }
 
 // Methods
 
-func (n navigator) Record() (Record, error) {
+// Record returns the Record obtained by navigating the tree to the searched field's value.
+// It returns an error if the value in question is in an unknown subtree or if the Navigate function of the field returns an error.
+func (n Navigator) Record() (Record, error) {
 	cursor := n.collection.root
 
 	for {

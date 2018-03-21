@@ -2,6 +2,8 @@ package collection
 
 import csha256 "crypto/sha256"
 
+// utility functions for slices of bytes
+
 func equal(lho []byte, rho []byte) bool {
 	if len(lho) != len(rho) {
 		return false
@@ -34,6 +36,7 @@ func setbit(buffer []byte, index int, value bool) {
 	}
 }
 
+// identical up to some bits
 func match(lho []byte, rho []byte, bits int) bool {
 	for index := 0; index < bits; {
 		if index < bits-8 {

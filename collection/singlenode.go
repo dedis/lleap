@@ -26,25 +26,26 @@ func (c *Collection) update(node *node) error {
 
 	if node.leaf() {
 		node.label = sha256(true, node.key, node.values)
-	} else {
-		if !(node.children.left.known) || !(node.children.right.known) {
-			return errors.New("updating internal node with unknown children")
-		}
-
-		node.values = make([][]byte, len(c.fields))
-
-		for index := 0; index < len(c.fields); index++ {
-			parentvalue, parenterror := c.fields[index].Parent(node.children.left.values[index], node.children.right.values[index])
-
-			if parenterror != nil {
-				return parenterror
-			}
-
-			node.values[index] = parentvalue
-		}
-
-		node.label = sha256(false, node.values, node.children.left.label[:], node.children.right.label[:])
+		return nil
 	}
+
+	if !(node.children.left.known) || !(node.children.right.known) {
+		return errors.New("updating internal node with unknown children")
+	}
+
+	node.values = make([][]byte, len(c.fields))
+
+	for index := 0; index < len(c.fields); index++ {
+		parentValue, parentError := c.fields[index].Parent(node.children.left.values[index], node.children.right.values[index])
+
+		if parentError != nil {
+			return parentError
+		}
+
+		node.values[index] = parentValue
+	}
+
+	node.label = sha256(false, node.values, node.children.left.label[:], node.children.right.label[:])
 
 	return nil
 }

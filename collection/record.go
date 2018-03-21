@@ -2,12 +2,15 @@ package collection
 
 import "errors"
 
+
+// Record holds the result of a search query.
+// It has getters to see the query, if the search was successful, the key and the value.
 type Record struct {
 	collection *Collection
 
 	field int
 	query []byte
-	match bool
+	match bool //if matched the query
 
 	key    []byte
 	values [][]byte
@@ -29,6 +32,8 @@ func recordkeymismatch(collection *Collection, key []byte) Record {
 
 // Getters
 
+// Query returns the original query, decoded, that generated the record.
+// It returns an error if the record was generated from a getter (key search).
 func (r Record) Query() (interface{}, error) {
 	if len(r.query) == 0 {
 		return nil, errors.New("no query specified")
@@ -47,14 +52,18 @@ func (r Record) Query() (interface{}, error) {
 	return value, nil
 }
 
+// Match returns true if the record match the query that generated it, and false otherwise.
 func (r Record) Match() bool {
 	return r.match
 }
 
+// Key returns the key of the record
 func (r Record) Key() []byte {
 	return r.key
 }
 
+// Values returns a copy of the values of a record.
+// If the record didn't match the query, an error will be returned.
 func (r Record) Values() ([]interface{}, error) {
 	if !(r.match) {
 		return []interface{}{}, errors.New("no match found")

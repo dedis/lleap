@@ -4,6 +4,8 @@ import csha256 "crypto/sha256"
 
 // Methods (collection) (transaction methods)
 
+// Begin indicates the start of a transaction.
+// It raises a flag preventing other transaction to take place on the same collection.
 func (c *Collection) Begin() {
 	if c.transaction.ongoing {
 		panic("Transaction already in progress.")
@@ -12,6 +14,8 @@ func (c *Collection) Begin() {
 	c.transaction.ongoing = true
 }
 
+// Rollback cancels the transaction.
+// It effectively replaces all nodes by their backup, if any and stops the transaction.
 func (c *Collection) Rollback() {
 	if !(c.transaction.ongoing) {
 		panic("Transaction not in progress")

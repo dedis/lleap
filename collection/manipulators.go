@@ -2,19 +2,23 @@ package collection
 
 import "errors"
 
+// Same is used as a placeholder for the individual values that don't need to be updated
+// when a modification of the values is requested.
+// All the values set to Same will stay the same, for example in a Set.
 type Same struct {
 }
 
-// Methods (collection) (manipulators)
-
+// Add adds a given key/value pair to the collection.
+// The key must not currently exist in the tree, otherwise, use the Set method.
+// The key location must also be in the known tree, otherwise an error is thrown.
 func (c *Collection) Add(key []byte, values ...interface{}) error {
 	if len(values) != len(c.fields) {
-		panic("Wrong number of values provided.")
+		panic("wrong number of values provided")
 	}
 
 	rawvalues := make([][]byte, len(c.fields))
-	for index := 0; index < len(c.fields); index++ {
-		rawvalues[index] = c.fields[index].Encode(values[index])
+	for index, field := range c.fields {
+		rawvalues[index] = field.Encode(values[index])
 	}
 
 	path := sha256(key)
@@ -105,6 +109,8 @@ func (c *Collection) Add(key []byte, values ...interface{}) error {
 	return nil
 }
 
+// Set updates a given key with a new value.
+// The key must already be present in the known collection, otherwise, an error is thrown.
 func (c *Collection) Set(key []byte, values ...interface{}) error {
 	if len(values) != len(c.fields) {
 		panic("wrong number of values provided")
@@ -176,6 +182,8 @@ func (c *Collection) Set(key []byte, values ...interface{}) error {
 	return nil
 }
 
+// SetField updates one of the the value associated with a key to a new value.
+// It updates the field with the index given by the parameter field to a new value.
 func (c *Collection) SetField(key []byte, field int, value interface{}) error {
 	if field >= len(c.fields) {
 		panic("field does not exist")
@@ -193,6 +201,10 @@ func (c *Collection) SetField(key []byte, field int, value interface{}) error {
 	return c.Set(key, values...)
 }
 
+// Remove removes a given key and its associated value from the collection.
+// It then rebuilds the tree, to always have a tree with no placeholder,
+// except if the collection contains no more data.
+// Note that the removed key/pair value must be present in the known tree, otherwise an error is thrown.
 func (c *Collection) Remove(key []byte) error {
 	path := sha256(key)
 

@@ -2,20 +2,27 @@ package collection
 
 import "errors"
 
-type getter struct {
+// Getter is the result of a get on a collection.
+// It allows to get a record of the given key/value pair
+// and prove, if that is the case, that the given key is in the collection.
+type Getter struct {
 	collection *Collection
 	key        []byte
 }
 
 // Constructors
 
-func (c *Collection) Get(key []byte) getter {
-	return getter{c, key}
+// Get returns a getter object, the result of a search of a given key on the collection.
+// It takes as parameter the key we search in the collection.
+func (c *Collection) Get(key []byte) Getter {
+	return Getter{c, key}
 }
 
 // Methods
 
-func (g getter) Record() (Record, error) {
+// Record returns a Record object that correspond to the result of the key search.
+// The Record will contain a boolean "match" that is true if the search was successful and false otherwise.
+func (g Getter) Record() (Record, error) {
 	path := sha256(g.key)
 
 	depth := 0
@@ -42,7 +49,10 @@ func (g getter) Record() (Record, error) {
 	}
 }
 
-func (g getter) Proof() (Proof, error) {
+// Proof returns a Proof of the presence or absence of a given key in the collection.
+// The location the proof points to can either contains the actual key
+// or another key, effectively proving that the key is absent from the collection.
+func (g Getter) Proof() (Proof, error) {
 	var proof Proof
 
 	proof.collection = g.collection

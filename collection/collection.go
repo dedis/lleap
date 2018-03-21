@@ -5,7 +5,8 @@
 // distributed and decentralized ledgers with minimal bootstrapping time.
 package collection
 
-
+// Collection represents the Merkle-tree based data structure.
+// The data is defined by a pointer to its root.
 type Collection struct {
 	root   *node
 	fields []Field
@@ -20,6 +21,7 @@ type Collection struct {
 
 // Constructors
 
+// New creates a new collection, with one root node and the given Fields
 func New(fields ...Field) (collection Collection) {
 	collection.fields = fields
 
@@ -38,6 +40,8 @@ func New(fields ...Field) (collection Collection) {
 	return
 }
 
+// NewVerifier creates a verifier. A verifier is defined as a collection that stores no data and no nodes.
+// A verifiers is used to verify a query (i.e. that some data is or is not on the database).
 func NewVerifier(fields ...Field) (verifier Collection) {
 	verifier.fields = fields
 
@@ -55,6 +59,8 @@ func NewVerifier(fields ...Field) (verifier Collection) {
 
 // Methods
 
+// Clone returns a deep copy of the collection.
+// Note that the transaction id are restarted from 0 for the copy.
 func (c *Collection) Clone() (collection Collection) {
 	if c.transaction.ongoing {
 		panic("Cannot clone a collection while a transaction is ongoing.")
@@ -72,21 +78,21 @@ func (c *Collection) Clone() (collection Collection) {
 	collection.transaction.id = 0
 
 	var explore func(*node, *node)
-	explore = func(dstcursor *node, srccursor *node) {
-		dstcursor.label = srccursor.label
-		dstcursor.known = srccursor.known
+	explore = func(dstCursor *node, srcCursor *node) {
+		dstCursor.label = srcCursor.label
+		dstCursor.known = srcCursor.known
 
-		dstcursor.transaction.inconsistent = false
-		dstcursor.transaction.backup = nil
+		dstCursor.transaction.inconsistent = false
+		dstCursor.transaction.backup = nil
 
-		dstcursor.key = srccursor.key
-		dstcursor.values = make([][]byte, len(srccursor.values))
-		copy(dstcursor.values, srccursor.values)
+		dstCursor.key = srcCursor.key
+		dstCursor.values = make([][]byte, len(srcCursor.values))
+		copy(dstCursor.values, srcCursor.values)
 
-		if !(srccursor.leaf()) {
-			dstcursor.branch()
-			explore(dstcursor.children.left, srccursor.children.left)
-			explore(dstcursor.children.right, srccursor.children.right)
+		if !(srcCursor.leaf()) {
+			dstCursor.branch()
+			explore(dstCursor.children.left, srcCursor.children.left)
+			explore(dstCursor.children.right, srcCursor.children.right)
 		}
 	}
 

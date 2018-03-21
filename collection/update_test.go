@@ -206,10 +206,10 @@ func TestUpdatePrepare(test *testing.T) {
 
 	proof, _ := collection.Get([]byte("mykey")).Proof()
 
-	singlerecord := TestUpdateSingleRecordUpdate{proof}
-	update, error := collection.Prepare(singlerecord)
+	singleRecord := TestUpdateSingleRecordUpdate{proof}
+	update, err := collection.Prepare(singleRecord)
 
-	if error != nil {
+	if err != nil {
 		test.Error("[update.go]", "[prepare]", "Prepare() yields an error on a valid update.")
 	}
 
@@ -229,10 +229,10 @@ func TestUpdatePrepare(test *testing.T) {
 		test.Error("[update.go]", "[prepare]", "Prepare() sets wrong proxy paths.")
 	}
 
-	singlerecord.record.steps[0].Left.Label[0]++
-	_, error = collection.Prepare(singlerecord)
+	singleRecord.record.steps[0].Left.Label[0]++
+	_, err = collection.Prepare(singleRecord)
 
-	if error == nil {
+	if err == nil {
 		test.Error("[update.go]", "[prepare]", "Prepare() does not yield an error on an invalid proof.")
 	}
 
@@ -244,9 +244,9 @@ func TestUpdatePrepare(test *testing.T) {
 	to, _ := collection.Get([]byte("myotherkey")).Proof()
 
 	doublerecord := TestUpdateDoubleRecordUpdate{from, to}
-	update, error = collection.Prepare(doublerecord)
+	update, err = collection.Prepare(doublerecord)
 
-	if error != nil {
+	if err != nil {
 		test.Error("[update.go]", "[prepare]", "Prepare() yields an error on a valid update:")
 	}
 
@@ -267,16 +267,16 @@ func TestUpdatePrepare(test *testing.T) {
 	}
 
 	doublerecord.from.steps[0].Left.Label[0]++
-	_, error = collection.Prepare(doublerecord)
+	_, err = collection.Prepare(doublerecord)
 
-	if error == nil {
+	if err == nil {
 		test.Error("[update.go]", "[prepare]", "Prepare() does not yield an error on an invalid proof.")
 	}
 
 	collection.root.transaction.inconsistent = true
 
 	ctx.shouldPanic("[prepare]", func() {
-		collection.Prepare(singlerecord)
+		collection.Prepare(singleRecord)
 	})
 }
 
@@ -298,13 +298,13 @@ func TestUpdateApplyUpdate(test *testing.T) {
 	collection.Add([]byte("alice"), uint64(4))
 	collection.Add([]byte("bob"), uint64(0))
 
-	aliceproof, _ := collection.Get([]byte("alice")).Proof()
-	aliceupdate, _ := collection.Prepare(TestUpdateSingleRecordUpdate{aliceproof})
+	aliceProof, _ := collection.Get([]byte("alice")).Proof()
+	aliceUpdate, _ := collection.Prepare(TestUpdateSingleRecordUpdate{aliceProof})
 
-	error := collection.Apply(aliceupdate)
+	err := collection.Apply(aliceUpdate)
 
-	if error != nil {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() yields an error when applying a valid update.")
+	if err != nil {
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() yields an error when applying a valid update.")
 	}
 
 	alice, _ := collection.Get([]byte("alice")).Record()
@@ -312,22 +312,22 @@ func TestUpdateApplyUpdate(test *testing.T) {
 	alicevalue := alicevalues[0].(uint64)
 
 	if alicevalue != 5 {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() does not apply the update.")
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() does not apply the update.")
 	}
 
 	collection.Begin()
 
-	aliceproof, _ = collection.Get([]byte("alice")).Proof()
-	aliceupdate, _ = collection.Prepare(TestUpdateSingleRecordUpdate{aliceproof})
+	aliceProof, _ = collection.Get([]byte("alice")).Proof()
+	aliceUpdate, _ = collection.Prepare(TestUpdateSingleRecordUpdate{aliceProof})
 
-	error = collection.Apply(aliceupdate)
-	if error != nil {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() yields an error when applying a valid update.")
+	err = collection.Apply(aliceUpdate)
+	if err != nil {
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() yields an error when applying a valid update.")
 	}
 
-	error = collection.Apply(aliceupdate)
-	if error != nil {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() yields an error when applying a valid update.")
+	err = collection.Apply(aliceUpdate)
+	if err != nil {
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() yields an error when applying a valid update.")
 	}
 
 	collection.End()
@@ -337,26 +337,26 @@ func TestUpdateApplyUpdate(test *testing.T) {
 	alicevalue = alicevalues[0].(uint64)
 
 	if alicevalue != 7 {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() does not apply the update.")
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() does not apply the update.")
 	}
 
 	johnproof, _ := collection.Get([]byte("john")).Proof()
 	johnupdate, _ := collection.Prepare(TestUpdateSingleRecordUpdate{johnproof})
 
-	error = collection.Apply(johnupdate)
+	err = collection.Apply(johnupdate)
 
-	if error == nil {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() does not yield an error on an invalid update.")
+	if err == nil {
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() does not yield an error on an invalid update.")
 	}
 
-	aliceproof, _ = collection.Get([]byte("alice")).Proof()
+	aliceProof, _ = collection.Get([]byte("alice")).Proof()
 	bobproof, _ := collection.Get([]byte("bob")).Proof()
 
-	alicetobobupdate, _ := collection.Prepare(TestUpdateDoubleRecordUpdate{aliceproof, bobproof})
+	alicetobobupdate, _ := collection.Prepare(TestUpdateDoubleRecordUpdate{aliceProof, bobproof})
 
-	error = collection.Apply(alicetobobupdate)
-	if error != nil {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() yields an error when applying a valid update.")
+	err = collection.Apply(alicetobobupdate)
+	if err != nil {
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() yields an error when applying a valid update.")
 	}
 
 	alice, _ = collection.Get([]byte("alice")).Record()
@@ -368,30 +368,30 @@ func TestUpdateApplyUpdate(test *testing.T) {
 	bobvalue := bobvalues[0].(uint64)
 
 	if (alicevalue != 6) || (bobvalue != 1) {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate does not apply the proper update.")
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate does not apply the proper update.")
 	}
 
 	collection.Begin()
 
-	aliceproof, _ = collection.Get([]byte("alice")).Proof()
+	aliceProof, _ = collection.Get([]byte("alice")).Proof()
 	bobproof, _ = collection.Get([]byte("bob")).Proof()
 
-	alicetobobupdate, _ = collection.Prepare(TestUpdateDoubleRecordUpdate{aliceproof, bobproof})
-	bobtoaliceupdate, _ := collection.Prepare(TestUpdateDoubleRecordUpdate{bobproof, aliceproof})
+	alicetobobupdate, _ = collection.Prepare(TestUpdateDoubleRecordUpdate{aliceProof, bobproof})
+	bobtoaliceupdate, _ := collection.Prepare(TestUpdateDoubleRecordUpdate{bobproof, aliceProof})
 
-	error = collection.Apply(alicetobobupdate)
-	if error != nil {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() yields an error when applying a valid update.")
+	err = collection.Apply(alicetobobupdate)
+	if err != nil {
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() yields an error when applying a valid update.")
 	}
 
-	error = collection.Apply(bobtoaliceupdate)
-	if error != nil {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() yields an error when applying a valid update.")
+	err = collection.Apply(bobtoaliceupdate)
+	if err != nil {
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() yields an error when applying a valid update.")
 	}
 
-	error = collection.Apply(bobtoaliceupdate)
-	if error != nil {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() yields an error when applying a valid update.")
+	err = collection.Apply(bobtoaliceupdate)
+	if err != nil {
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() yields an error when applying a valid update.")
 	}
 
 	collection.End()
@@ -405,20 +405,20 @@ func TestUpdateApplyUpdate(test *testing.T) {
 	bobvalue = bobvalues[0].(uint64)
 
 	if (alicevalue != 7) || (bobvalue != 0) {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate does not apply the proper update.")
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate does not apply the proper update.")
 	}
 
-	aliceproof, _ = collection.Get([]byte("alice")).Proof()
+	aliceProof, _ = collection.Get([]byte("alice")).Proof()
 	bobproof, _ = collection.Get([]byte("bob")).Proof()
 
-	bobtoaliceupdate, _ = collection.Prepare(TestUpdateDoubleRecordUpdate{bobproof, aliceproof})
+	bobtoaliceupdate, _ = collection.Prepare(TestUpdateDoubleRecordUpdate{bobproof, aliceProof})
 
-	error = collection.Apply(bobtoaliceupdate)
-	if error == nil {
-		test.Error("[update.go]", "[applyupdate]", "applyupdate() does not yield an error when applying an invalid update.")
+	err = collection.Apply(bobtoaliceupdate)
+	if err == nil {
+		test.Error("[update.go]", "[applyUpdate]", "applyUpdate() does not yield an error when applying an invalid update.")
 	}
 
-	ctx.shouldPanic("[applyupdate]", func() {
+	ctx.shouldPanic("[applyUpdate]", func() {
 		collection.Apply(alicetobobupdate)
 	})
 }
@@ -436,7 +436,7 @@ func TestUpdateApplyUserUpdate(test *testing.T) {
 	error := collection.Apply(TestUpdateSingleRecordUpdate{aliceproof})
 
 	if error != nil {
-		test.Error("[update.go]", "[applyuserupdate]", "applyuserupdate() yields an error when applying a valid user update.")
+		test.Error("[update.go]", "[applyUserUpdate]", "applyUserUpdate() yields an error when applying a valid user update.")
 	}
 
 	alice, _ := collection.Get([]byte("alice")).Record()
@@ -444,7 +444,7 @@ func TestUpdateApplyUserUpdate(test *testing.T) {
 	alicevalue := alicevalues[0].(uint64)
 
 	if alicevalue != 5 {
-		test.Error("[update.go]", "[applyuserupdate]", "applyuserupdate() does not apply the update.")
+		test.Error("[update.go]", "[applyUserUpdate]", "applyUserUpdate() does not apply the update.")
 	}
 
 	aliceproof, _ = collection.Get([]byte("alice")).Proof()
@@ -453,17 +453,17 @@ func TestUpdateApplyUserUpdate(test *testing.T) {
 	error = collection.Apply(TestUpdateSingleRecordUpdate{aliceproof})
 
 	if error == nil {
-		test.Error("[update.go]", "[applyuserupdate]", "applyuserupdate() does not yield an error when applying an invalid user update.")
+		test.Error("[update.go]", "[applyUserUpdate]", "applyUserUpdate() does not yield an error when applying an invalid user update.")
 	}
 
 	johnproof, _ := collection.Get([]byte("john")).Proof()
 	error = collection.Apply(TestUpdateSingleRecordUpdate{johnproof})
 
 	if error == nil {
-		test.Error("[update.go]", "[applyuserupdate]", "applyuserupdate() does not yield an error when applying an invalid user update.")
+		test.Error("[update.go]", "[applyUserUpdate]", "applyUserUpdate() does not yield an error when applying an invalid user update.")
 	}
 
-	ctx.shouldPanic("[applyuserupdate]", func() {
+	ctx.shouldPanic("[applyUserUpdate]", func() {
 		collection.Begin()
 
 		aliceproof, _ := collection.Get([]byte("alice")).Proof()
