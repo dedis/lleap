@@ -15,7 +15,7 @@ func TestProofDumpNode(test *testing.T) {
 
 	rootdump := dumpNode(collection.root)
 
-	if rootdump.label != collection.root.label {
+	if rootdump.Label != collection.root.label {
 		test.Error("[proof.go]", "[dumpNode]", "dumpNode() sets wrong label on dump of internal node.")
 	}
 
@@ -45,7 +45,7 @@ func TestProofDumpNode(test *testing.T) {
 
 	leafdump := dumpNode(leaf)
 
-	if leafdump.label != leaf.label {
+	if leafdump.Label != leaf.label {
 		test.Error("[proof.go]", "[dumpNode]", "dumpNode() sets wrong label on dump of leaf.")
 	}
 
@@ -119,7 +119,7 @@ func TestProofDumpConsistent(test *testing.T) {
 		test.Error("[proof.go]", "[consistent]", "consistent() returns false on valid internal node.")
 	}
 
-	rootDump.label[0]++
+	rootDump.Label[0]++
 
 	if rootDump.consistent() {
 		test.Error("[proof.go]", "[consistent]", "consistent() returns true on invalid internal node.")
@@ -129,7 +129,7 @@ func TestProofDumpConsistent(test *testing.T) {
 		test.Error("[proof.go]", "[consistent]", "consistent() returns false on valid leaf.")
 	}
 
-	leafDump.label[0]++
+	leafDump.Label[0]++
 
 	if leafDump.consistent() {
 		test.Error("[proof.go]", "[consistent]", "consistent() returns true on invalid leaf.")
@@ -350,11 +350,11 @@ func TestProofConsistent(test *testing.T) {
 		test.Error("[proof.go]", "[consistent]", "Proof produced by collection is not consistent.")
 	}
 
-	proof.root.label[0]++
+	proof.root.Label[0]++
 	if proof.consistent() {
 		test.Error("[proof.go]", "[consistent]", "Proof is still consistent after altering label of root node.")
 	}
-	proof.root.label[0]--
+	proof.root.Label[0]--
 
 	proof.root.Values[0][0]++
 	if proof.consistent() {
@@ -384,17 +384,17 @@ func TestProofConsistent(test *testing.T) {
 	for index := 0; index < len(proof.steps); index++ {
 		step := &(proof.steps[index])
 
-		step.Left.label[0]++
+		step.Left.Label[0]++
 		if proof.consistent() {
 			test.Error("[proof.go]", "[consistent]", "Proof is still consistent after altering label of one of left steps.")
 		}
-		step.Left.label[0]--
+		step.Left.Label[0]--
 
-		step.Right.label[0]++
+		step.Right.Label[0]++
 		if proof.consistent() {
 			test.Error("[proof.go]", "[consistent]", "Proof is still consistent after altering label of one of right steps.")
 		}
-		step.Right.label[0]--
+		step.Right.Label[0]--
 
 		step.Left.Values[0][0]++
 		if proof.consistent() {

@@ -98,7 +98,7 @@ func TestGettersProof(test *testing.T) {
 			test.Error("[getters.go]", "[proof]", "Proof() returns proof with wrong collection pointer.")
 		}
 
-		if proof.root.label != collection.root.label {
+		if proof.root.Label != collection.root.label {
 			test.Error("[getters.go]", "[proof]", "Proof() returns a proof with wrong root.")
 		}
 
@@ -110,7 +110,7 @@ func TestGettersProof(test *testing.T) {
 			test.Error("[getters.go]", "[proof]", "Proof() returns a proof with no steps.")
 		}
 
-		if (proof.steps[0].Left.label != proof.root.Children.Left) || (proof.steps[0].Right.label != proof.root.Children.Right) {
+		if (proof.steps[0].Left.Label != proof.root.Children.Left) || (proof.steps[0].Right.Label != proof.root.Children.Right) {
 			test.Error("[getters.go]", "[proof]", "Label mismatch between root children and first step.")
 		}
 
@@ -122,11 +122,11 @@ func TestGettersProof(test *testing.T) {
 			}
 
 			if bit(path[:], depth) {
-				if (proof.steps[depth].Right.Children.Left != proof.steps[depth+1].Left.label) || (proof.steps[depth].Right.Children.Right != proof.steps[depth+1].Right.label) {
+				if (proof.steps[depth].Right.Children.Left != proof.steps[depth+1].Left.Label) || (proof.steps[depth].Right.Children.Right != proof.steps[depth+1].Right.Label) {
 					test.Error("[getters.go]", "[proof]", "Step label mismatch given path.")
 				}
 			} else {
-				if (proof.steps[depth].Left.Children.Left != proof.steps[depth+1].Left.label) || (proof.steps[depth].Left.Children.Right != proof.steps[depth+1].Right.label) {
+				if (proof.steps[depth].Left.Children.Left != proof.steps[depth+1].Left.Label) || (proof.steps[depth].Left.Children.Right != proof.steps[depth+1].Right.Label) {
 					test.Error("[getters.go]", "[proof]", "Step label mismatch given path.")
 				}
 			}

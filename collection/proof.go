@@ -18,13 +18,13 @@ type dump struct {
 		Right [sha256.Size]byte
 	}
 
-	label [sha256.Size]byte
+	Label [sha256.Size]byte //TODO: explain that making it private was preventing serialization (why did we put it private?)
 }
 
 // Constructors
 
 func dumpNode(node *node) (dump dump) {
-	dump.label = node.label
+	dump.Label = node.label
 	dump.Values = node.values
 
 	if node.leaf() {
@@ -61,13 +61,13 @@ func (d *dump) consistent() bool {
 		return false
 	}
 
-	return d.label == hash
+	return d.Label == hash
 }
 
 func (d *dump) to(node *node) {
-	if !(node.known) && (node.label == d.label) {
+	if !(node.known) && (node.label == d.Label) {
 		node.known = true
-		node.label = d.label
+		node.label = d.Label
 		node.values = d.Values
 
 		if d.leaf() {
@@ -190,7 +190,7 @@ func (p Proof) consistent() bool {
 	path := sha256.Sum256(p.key)
 
 	for depth := 0; depth < len(p.steps); depth++ {
-		if (cursor.Children.Left != p.steps[depth].Left.label) || (cursor.Children.Right != p.steps[depth].Right.label) {
+		if (cursor.Children.Left != p.steps[depth].Left.Label) || (cursor.Children.Right != p.steps[depth].Right.Label) {
 			return false
 		}
 
