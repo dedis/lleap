@@ -1,6 +1,6 @@
 package collection
 
-import csha256 "crypto/sha256"
+import "crypto/sha256"
 
 // Methods (collection) (transaction methods)
 
@@ -39,6 +39,8 @@ func (c *Collection) Rollback() {
 	c.transaction.ongoing = false
 }
 
+// End ends the transaction.
+// It validates new states of nodes, fixes inconsistencies and increment the transaction id counter.
 func (c *Collection) End() {
 	if !(c.transaction.ongoing) {
 		panic("Transaction not in progress.")
@@ -55,9 +57,11 @@ func (c *Collection) End() {
 	c.transaction.ongoing = false
 }
 
+// Collect performs the garbage collection of the nodes out of the scope.
+// It removes all nodes that are meant to be stored temporarily.
 func (c *Collection) Collect() {
-	var explore func(*node, [csha256.Size]byte, int)
-	explore = func(node *node, path [csha256.Size]byte, bit int) {
+	var explore func(*node, [sha256.Size]byte, int)
+	explore = func(node *node, path [sha256.Size]byte, bit int) {
 		if !(node.known) {
 			return
 		}
@@ -81,7 +85,7 @@ func (c *Collection) Collect() {
 		return
 	}
 
-	var path [csha256.Size]byte
+	var path [sha256.Size]byte
 	none := true
 
 	setbit(path[:], 0, false)

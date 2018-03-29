@@ -1,27 +1,30 @@
 package collection
 
-import "errors"
-import csha256 "crypto/sha256"
-import "github.com/dedis/protobuf"
+import (
+	"errors"
+	"github.com/dedis/protobuf"
+	"crypto/sha256"
+)
 
 // dump
 
 type dump struct {
-	Label [csha256.Size]byte
 
 	Key    []byte   `protobuf:"opt"`
 	Values [][]byte `protobuf:"opt"`
 
 	Children struct {
-		Left  [csha256.Size]byte
-		Right [csha256.Size]byte
+		Left  [sha256.Size]byte
+		Right [sha256.Size]byte
 	}
+
+	label [sha256.Size]byte
 }
 
 // Constructors
 
-func dumpnode(node *node) (dump dump) {
-	dump.Label = node.label
+func dumpNode(node *node) (dump dump) {
+	dump.label = node.label
 	dump.Values = node.values
 
 	if node.leaf() {
@@ -37,23 +40,34 @@ func dumpnode(node *node) (dump dump) {
 // Getters
 
 func (d *dump) leaf() bool {
-	var empty [csha256.Size]byte
+	var empty [sha256.Size]byte
 	return (d.Children.Left == empty) && (d.Children.Right == empty)
 }
 
 // Methods
 
 func (d *dump) consistent() bool {
+	var toEncode toHash
 	if d.leaf() {
-		return d.Label == sha256(true, d.Key[:], d.Values)
+		toEncode = toHash{false, d.Key, d.Values, [sha256.Size]byte{}, [sha256.Size]byte{}}
+	} else {
+		toEncode = toHash{true, []byte{}, d.Values,
+			d.Children.Left, d.Children.Right}
 	}
-	return d.Label == sha256(false, d.Values, d.Children.Left[:], d.Children.Right[:])
+
+	hash, err := toEncode.hash()
+	if err != nil {
+		// TODO: print error
+		return false
+	}
+
+	return d.label == hash
 }
 
 func (d *dump) to(node *node) {
-	if !(node.known) && (node.label == d.Label) {
+	if !(node.known) && (node.label == d.label) {
 		node.known = true
-		node.label = d.Label
+		node.label = d.label
 		node.values = d.Values
 
 		if d.leaf() {
@@ -104,7 +118,7 @@ func (p Proof) Match() bool {
 		return false
 	}
 
-	path := sha256(p.key)
+	path := sha256.Sum256(p.key)
 	depth := len(p.steps) - 1
 
 	if bit(path[:], depth) {
@@ -120,7 +134,7 @@ func (p Proof) Values() ([]interface{}, error) {
 		return []interface{}{}, errors.New("proof has no steps")
 	}
 
-	path := sha256(p.key)
+	path := sha256.Sum256(p.key)
 	depth := len(p.steps) - 1
 
 	match := false
@@ -173,10 +187,10 @@ func (p Proof) consistent() bool {
 	}
 
 	cursor := &(p.root)
-	path := sha256(p.key)
+	path := sha256.Sum256(p.key)
 
 	for depth := 0; depth < len(p.steps); depth++ {
-		if (cursor.Children.Left != p.steps[depth].Left.Label) || (cursor.Children.Right != p.steps[depth].Right.Label) {
+		if (cursor.Children.Left != p.steps[depth].Left.label) || (cursor.Children.Right != p.steps[depth].Right.label) {
 			return false
 		}
 

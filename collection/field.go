@@ -1,33 +1,39 @@
 package collection
 
-import "errors"
-import "encoding/binary"
+import (
+	"errors"
+	"encoding/binary"
+)
 
 // Enums
 
-// Navigation is a boolean representing whether a Navigator
-// should go to the right or to the left while going down a tree.
-type Navigation bool
-
 const (
 	// Left is a constant representing the case where the Navigator should go to the left child.
-	Left  Navigation = false
+	Left = false
 	// Right is a constant representing the case where the Navigator should go to the right child.
-	Right Navigation = true
+	Right = true
 )
 
 // Field describes a type.
 // It describes how the type is encoded, how it is decoded,
 // how it propagates up the tree and other needed functionality.
 type Field interface {
-	Encode(interface{}) []byte
-	Decode([]byte) (interface{}, error)
-	Placeholder() []byte
-	Parent([]byte, []byte) ([]byte, error)
-	Navigate([]byte, []byte, []byte, []byte) (Navigation, error)
+	Encode(generic interface{}) []byte // Describes how the type is encoded into bytes
+	Decode(raw []byte) (interface{}, error) // Inverse of Encode. Describes how to decode the byte to the original type
+	Placeholder() []byte // returns the byte representation of a placeholder (no value)
+
+
+	// returns the representation in byte of a parent value given its two children values.
+	// Used to store data on non-leaf node.
+	// Can return an empty array if this operation is not supported.
+	Parent(left []byte, right []byte) ([]byte, error)
+
+	// Navigate returns a navigation boolean indicating the direction a Navigator should go to
+	// from a parent node with a given query.
+	Navigate(query []byte, parent []byte, left []byte, right []byte) (bool, error)
 }
 
-// Structs
+// Structures
 
 // Data
 
@@ -60,7 +66,7 @@ func (d Data) Parent(left []byte, right []byte) ([]byte, error) {
 }
 
 // Navigate will return an error as the Data values cannot be navigated
-func (d Data) Navigate(query []byte, parent []byte, left []byte, right []byte) (Navigation, error) {
+func (d Data) Navigate(query []byte, parent []byte, left []byte, right []byte) (bool, error) {
 	return false, errors.New("data values cannot be navigated")
 }
 
@@ -97,19 +103,19 @@ func (s Stake64) Placeholder() []byte {
 // Parent returns the value each non-leaf node should hold.
 // The returned value is the sum of stakes of its children or an error if a decoding error occurred.
 func (s Stake64) Parent(left []byte, right []byte) ([]byte, error) {
-	leftvalue, lefterror := s.Decode(left)
+	leftValue, leftError := s.Decode(left)
 
-	if lefterror != nil {
-		return []byte{}, lefterror
+	if leftError != nil {
+		return []byte{}, leftError
 	}
 
-	rightvalue, righterror := s.Decode(right)
+	rightValue, rightError := s.Decode(right)
 
-	if righterror != nil {
-		return []byte{}, righterror
+	if rightError != nil {
+		return []byte{}, rightError
 	}
 
-	return s.Encode(leftvalue.(uint64) + rightvalue.(uint64)), nil
+	return s.Encode(leftValue.(uint64) + rightValue.(uint64)), nil
 }
 
 // Navigate returns a navigation boolean indicating the direction a Navigator should go to with a given query.
@@ -118,31 +124,31 @@ func (s Stake64) Parent(left []byte, right []byte) ([]byte, error) {
 // and a right navigation boolean otherwise.
 // This behavior allows to find a stake randomly and proportionally to the stake value of each leaf.
 // To do this, one must select a random stake between 0 and the value of the root and input it repeatedly to the function to navigate down the tree.
-func (s Stake64) Navigate(query []byte, parent []byte, left []byte, right []byte) (Navigation, error) {
-	queryvalue, queryerror := s.Decode(query)
+func (s Stake64) Navigate(query []byte, parent []byte, left []byte, right []byte) (bool, error) {
+	queryValue, queryError := s.Decode(query)
 
-	if queryerror != nil {
-		return false, queryerror
+	if queryError != nil {
+		return false, queryError
 	}
 
-	parentvalue, parenterror := s.Decode(parent)
+	parentValue, parentError := s.Decode(parent)
 
-	if parenterror != nil {
-		return false, parenterror
+	if parentError != nil {
+		return false, parentError
 	}
 
-	if queryvalue.(uint64) >= parentvalue.(uint64) {
+	if queryValue.(uint64) >= parentValue.(uint64) {
 		return false, errors.New("query exceeds parent stake")
 	}
 
-	leftvalue, lefterror := s.Decode(left)
+	leftValue, leftError := s.Decode(left)
 
-	if lefterror != nil {
-		return false, lefterror
+	if leftError != nil {
+		return false, leftError
 	}
 
-	if queryvalue.(uint64) >= leftvalue.(uint64) {
-		copy(query, s.Encode(queryvalue.(uint64)-leftvalue.(uint64)))
+	if queryValue.(uint64) >= leftValue.(uint64) {
+		copy(query, s.Encode(queryValue.(uint64)-leftValue.(uint64)))
 		return Right, nil
 	}
 	return Left, nil

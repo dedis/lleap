@@ -1,6 +1,9 @@
 package collection
 
-import "testing"
+import (
+	"testing"
+	"crypto/sha256"
+)
 
 func TestUpdateProxy(test *testing.T) {
 	collection := New()
@@ -15,13 +18,16 @@ func TestUpdateProxy(test *testing.T) {
 		test.Error("[update.go]", "[proxy]", "proxy() method sets the wrong number of paths.")
 	}
 
-	if !(proxy.paths[sha256([]byte("firstkey"))]) || !(proxy.paths[sha256([]byte("secondkey"))]) || !(proxy.paths[sha256([]byte("thirdkey"))]) {
+	if !(proxy.paths[sha256.Sum256([]byte("firstkey"))]) ||
+		!(proxy.paths[sha256.Sum256([]byte("secondkey"))]) ||
+		!(proxy.paths[sha256.Sum256([]byte("thirdkey"))]) {
+
 		test.Error("[update.go]", "[proxy]", "proxy() method does not set the paths provided.")
 	}
 }
 
 func TestUpdateProxyMethods(test *testing.T) {
-	ctx := testctx("[update.go]", test)
+	ctx := testCtx("[update.go]", test)
 
 	stake64 := Stake64{}
 	collection := New(stake64)
@@ -40,13 +46,13 @@ func TestUpdateProxyMethods(test *testing.T) {
 		test.Error("[update.go]", "[get]", "Proxy method get() returns wrong values.")
 	}
 
-	error := proxy.Add([]byte("secondkey"), uint64(33))
-	if error != nil {
+	err := proxy.Add([]byte("secondkey"), uint64(33))
+	if err != nil {
 		test.Error("[update.go]", "[add]", "Proxy method add() yields an error on valid key.")
 	}
 
-	error = proxy.Add([]byte("secondkey"), uint64(22))
-	if error == nil {
+	err = proxy.Add([]byte("secondkey"), uint64(22))
+	if err == nil {
 		test.Error("[update.go]", "[add]", "Proxy method add() does not yield an error when adding an existing key.")
 	}
 
@@ -61,8 +67,8 @@ func TestUpdateProxyMethods(test *testing.T) {
 		test.Error("[update.go]", "[add]", "Proxy method add() adds wrong values.")
 	}
 
-	error = proxy.Set([]byte("secondkey"), uint64(22))
-	if error != nil {
+	err = proxy.Set([]byte("secondkey"), uint64(22))
+	if err != nil {
 		test.Error("[update.go]", "[set]", "Proxy method set() yields an error when setting on an existing key.")
 	}
 
@@ -73,13 +79,13 @@ func TestUpdateProxyMethods(test *testing.T) {
 		test.Error("[update.go]", "[set]", "Proxy method set() does not set the correct values.")
 	}
 
-	error = proxy.Set([]byte("thirdkey"), uint64(11))
-	if error == nil {
+	err = proxy.Set([]byte("thirdkey"), uint64(11))
+	if err == nil {
 		test.Error("[update.go]", "[set]", "Proxy method set() does not yield an error when setting on a non-existing key.")
 	}
 
-	error = proxy.SetField([]byte("firstkey"), 0, uint64(11))
-	if error != nil {
+	err = proxy.SetField([]byte("firstkey"), 0, uint64(11))
+	if err != nil {
 		test.Error("[update.go]", "[setfield]", "Proxy method setfield() does yields an error when setting on an existing key.")
 	}
 
@@ -90,13 +96,13 @@ func TestUpdateProxyMethods(test *testing.T) {
 		test.Error("[update.go]", "[setfield]", "Proxy method setfield() does not set the correct values.")
 	}
 
-	error = proxy.SetField([]byte("thirdkey"), 0, uint64(99))
-	if error == nil {
+	err = proxy.SetField([]byte("thirdkey"), 0, uint64(99))
+	if err == nil {
 		test.Error("[update.go]", "[setfield]", "Proxy method setfield() does not yield an error when setting on a non-existing key.")
 	}
 
-	error = proxy.Remove([]byte("secondkey"))
-	if error != nil {
+	err = proxy.Remove([]byte("secondkey"))
+	if err != nil {
 		test.Error("[update.go]", "[remove]", "Proxy method remove() yields an error when removing an existing key.")
 	}
 
@@ -105,8 +111,8 @@ func TestUpdateProxyMethods(test *testing.T) {
 		test.Error("[update.go]", "[remove]", "Proxy method remove() does not remove an existing key.")
 	}
 
-	error = proxy.Remove([]byte("secondkey"))
-	if error == nil {
+	err = proxy.Remove([]byte("secondkey"))
+	if err == nil {
 		test.Error("[update.go]", "[remove]", "Proxy method remove() does not yield an error when removing a non-existing key.")
 	}
 
@@ -195,7 +201,7 @@ func (t TestUpdateDoubleRecordUpdate) Apply(collection ReadWrite) {
 }
 
 func TestUpdatePrepare(test *testing.T) {
-	ctx := testctx("[update.go]", test)
+	ctx := testCtx("[update.go]", test)
 
 	stake64 := Stake64{}
 	collection := New(stake64)
@@ -225,11 +231,11 @@ func TestUpdatePrepare(test *testing.T) {
 		test.Error("[update.go]", "[prepare]", "Prepare() sets the wrong number of proxy paths.")
 	}
 
-	if !(update.proxy.paths[sha256([]byte("mykey"))]) {
+	if !(update.proxy.paths[sha256.Sum256([]byte("mykey"))]) {
 		test.Error("[update.go]", "[prepare]", "Prepare() sets wrong proxy paths.")
 	}
 
-	singleRecord.record.steps[0].Left.Label[0]++
+	singleRecord.record.steps[0].Left.label[0]++
 	_, err = collection.Prepare(singleRecord)
 
 	if err == nil {
@@ -262,11 +268,11 @@ func TestUpdatePrepare(test *testing.T) {
 		test.Error("[update.go]", "[prepare]", "Prepare() sets the wrong number of proxy paths.")
 	}
 
-	if !(update.proxy.paths[sha256([]byte("mykey"))]) || !(update.proxy.paths[sha256([]byte("myotherkey"))]) {
+	if !(update.proxy.paths[sha256.Sum256([]byte("mykey"))]) || !(update.proxy.paths[sha256.Sum256([]byte("myotherkey"))]) {
 		test.Error("[update.go]", "[prepare]", "Prepare() sets wrong proxy paths.")
 	}
 
-	doublerecord.from.steps[0].Left.Label[0]++
+	doublerecord.from.steps[0].Left.label[0]++
 	_, err = collection.Prepare(doublerecord)
 
 	if err == nil {
@@ -281,7 +287,7 @@ func TestUpdatePrepare(test *testing.T) {
 }
 
 func TestUpdateApply(test *testing.T) {
-	ctx := testctx("[update.go]", test)
+	ctx := testCtx("[update.go]", test)
 
 	collection := New()
 	ctx.shouldPanic("[apply]", func() {
@@ -290,7 +296,7 @@ func TestUpdateApply(test *testing.T) {
 }
 
 func TestUpdateApplyUpdate(test *testing.T) {
-	ctx := testctx("[update.go]", test)
+	ctx := testCtx("[update.go]", test)
 
 	stake64 := Stake64{}
 	collection := New(stake64)
@@ -424,7 +430,7 @@ func TestUpdateApplyUpdate(test *testing.T) {
 }
 
 func TestUpdateApplyUserUpdate(test *testing.T) {
-	ctx := testctx("[update.go]", test)
+	ctx := testCtx("[update.go]", test)
 
 	stake64 := Stake64{}
 	collection := New(stake64)
@@ -433,9 +439,9 @@ func TestUpdateApplyUserUpdate(test *testing.T) {
 	collection.Add([]byte("bob"), uint64(0))
 
 	aliceproof, _ := collection.Get([]byte("alice")).Proof()
-	error := collection.Apply(TestUpdateSingleRecordUpdate{aliceproof})
+	err := collection.Apply(TestUpdateSingleRecordUpdate{aliceproof})
 
-	if error != nil {
+	if err != nil {
 		test.Error("[update.go]", "[applyUserUpdate]", "applyUserUpdate() yields an error when applying a valid user update.")
 	}
 
@@ -448,18 +454,18 @@ func TestUpdateApplyUserUpdate(test *testing.T) {
 	}
 
 	aliceproof, _ = collection.Get([]byte("alice")).Proof()
-	aliceproof.steps[0].Left.Label[0]++
+	aliceproof.steps[0].Left.label[0]++
 
-	error = collection.Apply(TestUpdateSingleRecordUpdate{aliceproof})
+	err = collection.Apply(TestUpdateSingleRecordUpdate{aliceproof})
 
-	if error == nil {
+	if err == nil {
 		test.Error("[update.go]", "[applyUserUpdate]", "applyUserUpdate() does not yield an error when applying an invalid user update.")
 	}
 
 	johnproof, _ := collection.Get([]byte("john")).Proof()
-	error = collection.Apply(TestUpdateSingleRecordUpdate{johnproof})
+	err = collection.Apply(TestUpdateSingleRecordUpdate{johnproof})
 
-	if error == nil {
+	if err == nil {
 		test.Error("[update.go]", "[applyUserUpdate]", "applyUserUpdate() does not yield an error when applying an invalid user update.")
 	}
 

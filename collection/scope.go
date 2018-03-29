@@ -1,6 +1,6 @@
 package collection
 
-import csha256 "crypto/sha256"
+import "crypto/sha256"
 
 // mask
 
@@ -11,7 +11,7 @@ type mask struct {
 
 // Private methods
 
-func (m *mask) match(path [csha256.Size]byte, bits int) bool {
+func (m *mask) match(path [sha256.Size]byte, bits int) bool {
 	if bits < m.bits {
 		return match(path[:], m.value, bits)
 	}
@@ -43,7 +43,7 @@ func (s *scope) Add(value []byte, bits int) {
 
 // Private methods
 
-func (s *scope) match(path [csha256.Size]byte, bits int) bool {
+func (s *scope) match(path [sha256.Size]byte, bits int) bool {
 	if len(s.masks) == 0 {
 		return s.all
 	}

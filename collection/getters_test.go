@@ -1,7 +1,10 @@
 package collection
 
-import "testing"
-import "encoding/binary"
+import (
+	"testing"
+	"encoding/binary"
+	"crypto/sha256"
+)
 
 func TestGettersConstructors(test *testing.T) {
 	collection := New()
@@ -95,7 +98,7 @@ func TestGettersProof(test *testing.T) {
 			test.Error("[getters.go]", "[proof]", "Proof() returns proof with wrong collection pointer.")
 		}
 
-		if proof.root.Label != collection.root.label {
+		if proof.root.label != collection.root.label {
 			test.Error("[getters.go]", "[proof]", "Proof() returns a proof with wrong root.")
 		}
 
@@ -107,11 +110,11 @@ func TestGettersProof(test *testing.T) {
 			test.Error("[getters.go]", "[proof]", "Proof() returns a proof with no steps.")
 		}
 
-		if (proof.steps[0].Left.Label != proof.root.Children.Left) || (proof.steps[0].Right.Label != proof.root.Children.Right) {
+		if (proof.steps[0].Left.label != proof.root.Children.Left) || (proof.steps[0].Right.label != proof.root.Children.Right) {
 			test.Error("[getters.go]", "[proof]", "Label mismatch between root children and first step.")
 		}
 
-		path := sha256(key)
+		path := sha256.Sum256(key)
 
 		for depth := 0; depth < len(proof.steps)-1; depth++ {
 			if !(proof.steps[depth].Left.consistent()) || !(proof.steps[depth].Right.consistent()) {
@@ -119,11 +122,11 @@ func TestGettersProof(test *testing.T) {
 			}
 
 			if bit(path[:], depth) {
-				if (proof.steps[depth].Right.Children.Left != proof.steps[depth+1].Left.Label) || (proof.steps[depth].Right.Children.Right != proof.steps[depth+1].Right.Label) {
+				if (proof.steps[depth].Right.Children.Left != proof.steps[depth+1].Left.label) || (proof.steps[depth].Right.Children.Right != proof.steps[depth+1].Right.label) {
 					test.Error("[getters.go]", "[proof]", "Step label mismatch given path.")
 				}
 			} else {
-				if (proof.steps[depth].Left.Children.Left != proof.steps[depth+1].Left.Label) || (proof.steps[depth].Left.Children.Right != proof.steps[depth+1].Right.Label) {
+				if (proof.steps[depth].Left.Children.Left != proof.steps[depth+1].Left.label) || (proof.steps[depth].Left.Children.Right != proof.steps[depth+1].Right.label) {
 					test.Error("[getters.go]", "[proof]", "Step label mismatch given path.")
 				}
 			}
@@ -141,7 +144,7 @@ func TestGettersProof(test *testing.T) {
 		key := make([]byte, 8)
 		binary.BigEndian.PutUint64(key, uint64(index))
 
-		path := sha256(key)
+		path := sha256.Sum256(key)
 
 		if bit(path[:], 0) {
 			continue

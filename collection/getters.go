@@ -1,6 +1,9 @@
 package collection
 
-import "errors"
+import (
+	"errors"
+	"crypto/sha256"
+)
 
 // Getter is the result of a get on a collection.
 // It allows to get a record of the given key/value pair
@@ -23,7 +26,7 @@ func (c *Collection) Get(key []byte) Getter {
 // Record returns a Record object that correspond to the result of the key search.
 // The Record will contain a boolean "match" that is true if the search was successful and false otherwise.
 func (g Getter) Record() (Record, error) {
-	path := sha256(g.key)
+	path := sha256.Sum256(g.key)
 
 	depth := 0
 	cursor := g.collection.root
@@ -58,9 +61,10 @@ func (g Getter) Proof() (Proof, error) {
 	proof.collection = g.collection
 	proof.key = g.key
 
-	proof.root = dumpnode(g.collection.root)
+	proof.root = dumpNode(g.collection.root)
 
-	path := sha256(g.key)
+	path := sha256.Sum256(g.key)
+	// old: path := sha256(g.key)
 
 	depth := 0
 	cursor := g.collection.root
@@ -74,7 +78,7 @@ func (g Getter) Proof() (Proof, error) {
 			return proof, errors.New("record lies in unknown subtree")
 		}
 
-		proof.steps = append(proof.steps, step{dumpnode(cursor.children.left), dumpnode(cursor.children.right)})
+		proof.steps = append(proof.steps, step{dumpNode(cursor.children.left), dumpNode(cursor.children.right)})
 
 		if bit(path[:], depth) {
 			cursor = cursor.children.right

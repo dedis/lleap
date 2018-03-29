@@ -55,7 +55,7 @@ func TestSinglenodePlaceholder(test *testing.T) {
 }
 
 func TestSinglenodeUpdate(test *testing.T) {
-	ctx := testctx("[singlenode.go]", test)
+	ctx := testCtx("[singlenode.go]", test)
 
 	basecollection := New()
 

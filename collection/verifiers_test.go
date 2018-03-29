@@ -4,7 +4,7 @@ import "testing"
 import "encoding/binary"
 
 func TestVerifiersVerify(test *testing.T) {
-	ctx := testctx("[verifiers.go]", test)
+	ctx := testCtx("[verifiers.go]", test)
 
 	stake64 := Stake64{}
 	data := Data{}
@@ -47,7 +47,7 @@ func TestVerifiersVerify(test *testing.T) {
 	}
 
 	proof, _ := collection.Get(make([]byte, 8)).Proof()
-	proof.steps[0].Left.Label[0]++
+	proof.steps[0].Left.label[0]++
 
 	if unknown.Verify(proof) {
 		test.Error("[verifiers.go]", "[verify]", "Verify() accepts an inconsistent proof.")

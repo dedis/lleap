@@ -1,10 +1,10 @@
 package collection
 
-import csha256 "crypto/sha256"
+import "crypto/sha256"
 
 //A node represents one element of the Merkle tree like data-structure.
 type node struct {
-	label [csha256.Size]byte
+	label [sha256.Size]byte
 
 	known bool
 

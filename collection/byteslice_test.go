@@ -1,9 +1,11 @@
 package collection
 
-import "testing"
-import csha256 "crypto/sha256"
-import "encoding/hex"
-import "math/rand"
+import (
+	"testing"
+	"crypto/sha256"
+	"encoding/hex"
+	"math/rand"
+)
 
 func TestBytesliceEqual(test *testing.T) {
 	lho, _ := hex.DecodeString("85f46bd1ba19d1014b1179edd451ece95296e4a8c765ba8bba86c16893906398")
@@ -98,17 +100,17 @@ func TestBytesliceMatch(test *testing.T) {
 }
 
 func TestBytesliceDigest(test *testing.T) {
-	ctx := testctx("[byteslice.go]", test)
+	ctx := testCtx("[byteslice.go]", test)
 
 	for round := 0; round < 16; round++ {
-		slice := make([]byte, csha256.Size)
-		for index := 0; index < csha256.Size; index++ {
+		slice := make([]byte, sha256.Size)
+		for index := 0; index < sha256.Size; index++ {
 			slice[index] = byte(rand.Uint32())
 		}
 
 		digest := digest(slice)
 
-		for index := 0; index < csha256.Size; index++ {
+		for index := 0; index < sha256.Size; index++ {
 			if digest[index] != slice[index] {
 				test.Error("[byteslice.go]", "[digest]", "digest() does not provide correct copy of the slice provided.")
 			}
@@ -124,6 +126,6 @@ func TestBytesliceDigest(test *testing.T) {
 	})
 
 	ctx.shouldPanic("[wrongsize]", func() {
-		digest(make([]byte, csha256.Size-1))
+		digest(make([]byte, sha256.Size-1))
 	})
 }

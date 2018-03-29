@@ -1,13 +1,17 @@
 package collection
 
+import "crypto/sha256"
+
 // Methods (collection) (verifiers)
 
+// Verify verifies that a given Proof is correct.
+// It moreover adds the nodes from the Proof to the temporary nodes of the collection.
 func (c *Collection) Verify(proof Proof) bool {
 	if c.root.transaction.inconsistent {
 		panic("Verify() called on inconsistent root.")
 	}
 
-	if (proof.root.Label != c.root.label) || !(proof.consistent()) {
+	if (proof.root.label != c.root.label) || !(proof.consistent()) {
 		return false
 	}
 
@@ -15,7 +19,7 @@ func (c *Collection) Verify(proof Proof) bool {
 		proof.root.to(c.root)
 	}
 
-	path := sha256(proof.key)
+	path := sha256.Sum256(proof.key)
 	cursor := c.root
 
 	for depth := 0; depth < len(proof.steps); depth++ {

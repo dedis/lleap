@@ -1,10 +1,12 @@
 package collection
 
-import "testing"
-import "encoding/binary"
+import (
+	"testing"
+	"encoding/binary"
+)
 
 func TestCollectionEmptyCollection(test *testing.T) {
-	ctx := testctx("[collection.go]", test)
+	ctx := testCtx("[collection.go]", test)
 
 	basecollection := New()
 
@@ -135,7 +137,7 @@ func TestCollectionEmptyVerifier(test *testing.T) {
 }
 
 func TestCollectionClone(test *testing.T) {
-	ctx := testctx("[collection.go]", test)
+	ctx := testCtx("[collection.go]", test)
 
 	stake64 := Stake64{}
 	data := Data{}

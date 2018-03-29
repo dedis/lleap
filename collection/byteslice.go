@@ -1,6 +1,6 @@
 package collection
 
-import csha256 "crypto/sha256"
+import "crypto/sha256"
 
 // utility functions for slices of bytes
 
@@ -57,14 +57,14 @@ func match(lho []byte, rho []byte, bits int) bool {
 	return true
 }
 
-func digest(buffer []byte) [csha256.Size]byte {
-	if len(buffer) != csha256.Size {
+func digest(buffer []byte) [sha256.Size]byte {
+	if len(buffer) != sha256.Size {
 		panic("Wrong slice length.")
 	}
 
-	var digest [csha256.Size]byte
+	var digest [sha256.Size]byte
 
-	for index := 0; index < csha256.Size; index++ {
+	for index := 0; index < sha256.Size; index++ {
 		digest[index] = buffer[index]
 	}
 

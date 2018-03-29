@@ -1,7 +1,8 @@
 package collection
 
-import "errors"
-import csha256 "crypto/sha256"
+import ("errors"
+	"crypto/sha256"
+)
 
 // Interfaces
 
@@ -28,15 +29,18 @@ type ReadWrite interface {
 
 // Structs
 
+// Update stores an update.
+// That is a bunch of transactions to be applied on the same collection.
 type Update struct {
 	transaction uint64
 	update      userUpdate
 	proxy       proxy
 }
 
+// proxy to the actual collection for the getters.
 type proxy struct {
 	collection *Collection
-	paths      map[[csha256.Size]byte]bool
+	paths      map[[sha256.Size]byte]bool
 }
 
 // proxy
@@ -45,10 +49,10 @@ type proxy struct {
 
 func (c *Collection) proxy(keys [][]byte) (proxy proxy) {
 	proxy.collection = c
-	proxy.paths = make(map[[csha256.Size]byte]bool)
+	proxy.paths = make(map[[sha256.Size]byte]bool)
 
 	for index := 0; index < len(keys); index++ {
-		proxy.paths[sha256(keys[index])] = true
+		proxy.paths[sha256.Sum256(keys[index])] = true
 	}
 
 	return
@@ -100,7 +104,7 @@ func (p proxy) Remove(key []byte) error {
 // Private methods
 
 func (p proxy) has(key []byte) bool {
-	path := sha256(key)
+	path := sha256.Sum256(key)
 	return p.paths[path]
 }
 

@@ -1,6 +1,9 @@
 package collection
 
-import "errors"
+import (
+	"errors"
+	"crypto/sha256"
+)
 
 // Same is used as a placeholder for the individual values that don't need to be updated
 // when a modification of the values is requested.
@@ -9,19 +12,20 @@ type Same struct {
 }
 
 // Add adds a given key/value pair to the collection.
-// The key must not currently exist in the tree, otherwise, use the Set method.
+// The key must not currently exist in the tree, otherwise, an error is thrown.
+// Use set to modify an already existing key/value pair.
 // The key location must also be in the known tree, otherwise an error is thrown.
 func (c *Collection) Add(key []byte, values ...interface{}) error {
 	if len(values) != len(c.fields) {
 		panic("wrong number of values provided")
 	}
 
-	rawvalues := make([][]byte, len(c.fields))
+	rawValues := make([][]byte, len(c.fields))
 	for index, field := range c.fields {
-		rawvalues[index] = field.Encode(values[index])
+		rawValues[index] = field.Encode(values[index])
 	}
 
-	path := sha256(key)
+	path := sha256.Sum256(key)
 
 	depth := 0
 	cursor := c.root
@@ -38,7 +42,7 @@ func (c *Collection) Add(key []byte, values ...interface{}) error {
 		step := bit(path[:], depth)
 		depth++
 
-		if step {
+		if step == Right {
 			cursor = cursor.children.right
 		} else {
 			cursor = cursor.children.left
@@ -50,7 +54,7 @@ func (c *Collection) Add(key []byte, values ...interface{}) error {
 			}
 
 			cursor.key = key
-			cursor.values = rawvalues
+			cursor.values = rawValues
 			c.update(cursor)
 
 			break
@@ -60,8 +64,8 @@ func (c *Collection) Add(key []byte, values ...interface{}) error {
 			}
 
 			collision := *cursor
-			collisionpath := sha256(collision.key)
-			collisionstep := bit(collisionpath[:], depth)
+			collisionPath := sha256.Sum256(collision.key)
+			collisionStep := bit(collisionPath[:], depth)
 
 			if c.transaction.ongoing {
 				cursor.backup()
@@ -70,7 +74,7 @@ func (c *Collection) Add(key []byte, values ...interface{}) error {
 			cursor.key = []byte{}
 			cursor.branch()
 
-			if collisionstep {
+			if collisionStep {
 				cursor.children.right.known = true
 				cursor.children.right.label = collision.label
 				cursor.children.right.key = collision.key
@@ -116,7 +120,7 @@ func (c *Collection) Set(key []byte, values ...interface{}) error {
 		panic("wrong number of values provided")
 	}
 
-	path := sha256(key)
+	path := sha256.Sum256(key)
 
 	depth := 0
 	cursor := c.root
@@ -206,7 +210,7 @@ func (c *Collection) SetField(key []byte, field int, value interface{}) error {
 // except if the collection contains no more data.
 // Note that the removed key/pair value must be present in the known tree, otherwise an error is thrown.
 func (c *Collection) Remove(key []byte) error {
-	path := sha256(key)
+	path := sha256.Sum256(key)
 
 	depth := 0
 	cursor := c.root
