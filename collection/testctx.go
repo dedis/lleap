@@ -139,7 +139,7 @@ func (t testCtxVerifier) scopeRecursion(prefix string, collection *Collection, n
 	var pathBuf [sha256.Size]byte
 
 	for index := 0; index < len(path); index++ {
-		setbit(pathBuf[:], index, path[index])
+		setBit(pathBuf[:], index, path[index])
 	}
 
 	if node.known && len(path) > 1 && !(collection.scope.match(pathBuf, len(path)-2)) {
@@ -165,12 +165,12 @@ func (t testCtxVerifier) scope(prefix string, collection *Collection) {
 	var pathBuf [sha256.Size]byte
 	none := true
 
-	setbit(pathBuf[:], 0, false)
+	setBit(pathBuf[:], 0, false)
 	if collection.scope.match(pathBuf, 0) {
 		none = false
 	}
 
-	setbit(pathBuf[:], 0, true)
+	setBit(pathBuf[:], 0, true)
 	if collection.scope.match(pathBuf, 0) {
 		none = false
 	}

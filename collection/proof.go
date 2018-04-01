@@ -49,10 +49,9 @@ func (d *dump) leaf() bool {
 func (d *dump) consistent() bool {
 	var toEncode toHash
 	if d.leaf() {
-		toEncode = toHash{false, d.Key, d.Values, [sha256.Size]byte{}, [sha256.Size]byte{}}
+		toEncode = toHash{true, d.Key, d.Values, [sha256.Size]byte{}, [sha256.Size]byte{}}
 	} else {
-		toEncode = toHash{true, []byte{}, d.Values,
-			d.Children.Left, d.Children.Right}
+		toEncode = toHash{false, []byte{}, d.Values,d.Children.Left, d.Children.Right}
 	}
 
 	hash, err := toEncode.hash()

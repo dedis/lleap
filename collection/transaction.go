@@ -73,10 +73,10 @@ func (c *Collection) Collect() {
 
 			node.prune()
 		} else if !(node.leaf()) {
-			setbit(path[:], bit+1, false)
+			setBit(path[:], bit+1, false)
 			explore(node.children.left, path, bit+1)
 
-			setbit(path[:], bit+1, true)
+			setBit(path[:], bit+1, true)
 			explore(node.children.right, path, bit+1)
 		}
 	}
@@ -88,12 +88,12 @@ func (c *Collection) Collect() {
 	var path [sha256.Size]byte
 	none := true
 
-	setbit(path[:], 0, false)
+	setBit(path[:], 0, false)
 	if c.scope.match(path, 0) {
 		none = false
 	}
 
-	setbit(path[:], 0, true)
+	setBit(path[:], 0, true)
 	if c.scope.match(path, 0) {
 		none = false
 	}
@@ -105,10 +105,10 @@ func (c *Collection) Collect() {
 
 		c.root.prune()
 	} else {
-		setbit(path[:], 0, false)
+		setBit(path[:], 0, false)
 		explore(c.root.children.left, path, 0)
 
-		setbit(path[:], 0, true)
+		setBit(path[:], 0, true)
 		explore(c.root.children.right, path, 0)
 	}
 }

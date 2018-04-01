@@ -71,9 +71,9 @@ func (n *node) generateHash() ([sha256.Size]byte, error) {
 
 	var toEncode toHash
 	if n.leaf() {
-		toEncode = toHash{false, n.key, n.values, [sha256.Size]byte{}, [sha256.Size]byte{}}
+		toEncode = toHash{true, n.key, n.values, [sha256.Size]byte{}, [sha256.Size]byte{}}
 	} else {
-		toEncode = toHash{true, []byte{}, n.values, n.children.left.label, n.children.right.label}
+		toEncode = toHash{false, []byte{}, n.values, n.children.left.label, n.children.right.label}
 	}
 
 	return toEncode.hash()

@@ -19,20 +19,20 @@ func equal(lho []byte, rho []byte) bool {
 }
 
 func bit(buffer []byte, index int) bool {
-	byteidx := uint(index) / 8
-	bitidx := 7 - (uint(index) % 8)
+	byteIdx := uint(index) / 8
+	bitIdx := 7 - (uint(index) % 8)
 
-	return ((buffer[byteidx] & (uint8(1) << bitidx)) != 0)
+	return ((buffer[byteIdx] & (uint8(1) << bitIdx)) != 0)
 }
 
-func setbit(buffer []byte, index int, value bool) {
-	byteidx := uint(index) / 8
-	bitidx := 7 - (uint(index) % 8)
+func setBit(buffer []byte, index int, value bool) {
+	byteIdx := uint(index) / 8
+	bitIdx := 7 - (uint(index) % 8)
 
 	if value {
-		buffer[byteidx] |= (uint8(1) << bitidx)
+		buffer[byteIdx] |= (uint8(1) << bitIdx)
 	} else {
-		buffer[byteidx] &^= (uint8(1) << bitidx)
+		buffer[byteIdx] &^= (uint8(1) << bitIdx)
 	}
 }
 
