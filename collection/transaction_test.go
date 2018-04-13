@@ -296,7 +296,7 @@ func TestTransactionFix(test *testing.T) {
 	// generate key with hash with Left direction as first bit
 	collection.root.children.left.key = []byte{0x00}
 	for {
-		collection.root.children.left.key[0] += 1
+		collection.root.children.left.key[0] ++
 		hash := sha256.Sum256(collection.root.children.left.key[:])
 		if bit(hash[:], 0) == Left {
 			break
@@ -315,7 +315,7 @@ func TestTransactionFix(test *testing.T) {
 	// generate key with hash with Right direction as first bit
 	collection.root.children.right.key = []byte{0x00}
 	for {
-		collection.root.children.right.key[0] += 1
+		collection.root.children.right.key[0] ++
 		hash := sha256.Sum256(collection.root.children.right.key[:])
 		if bit(hash[:], 0) == Right {
 			break
