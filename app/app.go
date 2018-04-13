@@ -3,17 +3,25 @@
 package main
 
 import (
+	"bytes"
 	"crypto/x509"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
 
+	"github.com/dedis/cothority"
+	"github.com/dedis/cothority/identity"
+	"github.com/dedis/cothority/skipchain"
+	"github.com/dedis/kyber"
+	"github.com/dedis/kyber/sign/cosi"
 	"github.com/dedis/lleap"
+	"github.com/dedis/lleap/service"
 	"github.com/dedis/onet/app"
-
 	"github.com/dedis/onet/log"
+	"github.com/dedis/onet/network"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -29,6 +37,12 @@ func main() {
 			Aliases:   []string{"c"},
 			ArgsUsage: "group.toml public.key",
 			Action:    create,
+		},
+		{
+			Name:      "genesis",
+			Usage:     "gets the genesis block as hex",
+			ArgsUsage: "group.toml skipchainID",
+			Action:    genesis,
 		},
 		{
 			Name:    "set",
@@ -79,6 +93,32 @@ func create(c *cli.Context) error {
 		return errors.New("during creation of skipchain: " + err.Error())
 	}
 	log.Infof("Created new skipchain on roster %s with ID: %x", group.Roster.List, resp.Skipblock.Hash)
+	return nil
+}
+
+func genesis(c *cli.Context) error {
+	log.Info("Getting the genesis block")
+
+	if c.NArg() != 2 {
+		return errors.New("please give: group.toml skipchainID")
+	}
+	group := readGroup(c)
+	scid, err := hex.DecodeString(c.Args().Get(1))
+	if err != nil {
+		return errors.New("couldn't decode skipchainID: " + err.Error())
+	}
+
+	client := skipchain.NewClient()
+	sb, err := client.GetSingleBlock(group.Roster, scid)
+	if err != nil {
+		return errors.New("failed to get block: " + err.Error())
+	}
+
+	buf, err := network.Marshal(sb)
+	if err != nil {
+		return errors.New("failed to marshal: " + err.Error())
+	}
+	log.Infof("%x", buf[16:len(buf)])
 	return nil
 }
 
@@ -136,8 +176,38 @@ func get(c *cli.Context) error {
 	if err != nil {
 		return errors.New("couldn't get value: " + err.Error())
 	}
-	log.Infof("Read value: %x = %x", key, *resp.Value)
+
+	v, err := verifyResponse(resp, key, group.Roster.Publics())
+	if err != nil {
+		return err
+	}
+
+	log.Infof("Read value: %x = %x", key, v)
 	return nil
+}
+
+func verifyResponse(resp *lleap.GetValueResponse, key string, publics []kyber.Point) (string, error) {
+	_, msg, err := network.Unmarshal(resp.SkipBlock.Data, cothority.Suite)
+	if err != nil {
+		return "", err
+	}
+
+	dataBlock := msg.(*identity.Data)
+	if dataBlock.Storage[service.KeyNewKey] != key {
+		return "", fmt.Errorf("mismatch key, got %s but need %s", dataBlock.Storage[service.KeyNewKey], key)
+	}
+
+	if !bytes.Equal(resp.ForwardLink.To, resp.SkipBlock.Hash) {
+		return "", errors.New("bad forward link")
+	}
+
+	if !bytes.Equal(resp.ForwardLink.Hash(), resp.ForwardLink.Signature.Msg) {
+		return "", errors.New("bad message in signature")
+	}
+
+	//// check the signature
+	err = cosi.Verify(cothority.Suite, publics, resp.ForwardLink.Signature.Msg, resp.ForwardLink.Signature.Sig, nil)
+	return dataBlock.Storage[service.KeyNewValue], err
 }
 
 // readGroup decodes the group given in the file with the name in the
