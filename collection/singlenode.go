@@ -17,24 +17,6 @@ type toHash struct{
 
 // Private methods (collection) (single node operations)
 
-func (c *Collection) placeholder(node *node) {
-	node.known = true
-	node.key = []byte{}
-	node.values = make([][]byte, len(c.fields))
-
-	for index := 0; index < len(c.fields); index++ {
-		node.values[index] = c.fields[index].Placeholder()
-	}
-
-	node.children.left = nil
-	node.children.right = nil
-
-	err := c.update(node)
-	if err != nil {
-		//TODO: forward error
-	}
-}
-
 func (c *Collection) update(node *node) error {
 	if !(node.known) {
 		return errors.New("updating an unknown node")
@@ -58,16 +40,32 @@ func (c *Collection) update(node *node) error {
 		}
 	}
 
-	label, err := node.generateHash()
-	if err != nil {
-		return err
-	}
+	label := node.generateHash()
 	node.label = label
 
 	return nil
 }
 
-func (n *node) generateHash() ([sha256.Size]byte, error) {
+func (c *Collection) setPlaceholder(node *node) error {
+	node.known = true
+	node.key = []byte{}
+	node.values = make([][]byte, len(c.fields))
+
+	for index := 0; index < len(c.fields); index++ {
+		node.values[index] = c.fields[index].Placeholder()
+	}
+
+	node.children.left = nil
+	node.children.right = nil
+
+	err := c.update(node)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (n *node) generateHash() [sha256.Size]byte {
 
 	var toEncode toHash
 	if n.leaf() {
@@ -79,11 +77,11 @@ func (n *node) generateHash() ([sha256.Size]byte, error) {
 	return toEncode.hash()
 }
 
-func (data *toHash) hash() ([sha256.Size]byte, error) {
+func (data *toHash) hash() [sha256.Size]byte {
 	buff, err := protobuf.Encode(data)
 	if err != nil {
-		return [sha256.Size]byte{}, err
+		panic("couldn't encode: "+ err.Error())
 	}
 
-	return sha256.Sum256(buff), nil
+	return sha256.Sum256(buff)
 }

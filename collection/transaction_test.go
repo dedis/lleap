@@ -298,7 +298,7 @@ func TestTransactionFix(test *testing.T) {
 	for {
 		collection.root.children.left.key[0] += 1
 		hash := sha256.Sum256(collection.root.children.left.key[:])
-		if bit(hash[:], 0) == Left { //TODO: find solution for this warning
+		if bit(hash[:], 0) == Left {
 			break
 		}
 	}

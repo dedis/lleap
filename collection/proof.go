@@ -18,7 +18,7 @@ type dump struct {
 		Right [sha256.Size]byte
 	}
 
-	Label [sha256.Size]byte //TODO: explain that making it private was preventing serialization (why did we put it private?)
+	Label [sha256.Size]byte
 }
 
 // Constructors
@@ -54,13 +54,7 @@ func (d *dump) consistent() bool {
 		toEncode = toHash{false, []byte{}, d.Values,d.Children.Left, d.Children.Right}
 	}
 
-	hash, err := toEncode.hash()
-	if err != nil {
-		// TODO: print error
-		return false
-	}
-
-	return d.Label == hash
+	return d.Label == toEncode.hash()
 }
 
 func (d *dump) to(node *node) {

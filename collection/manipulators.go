@@ -12,8 +12,8 @@ type Same struct {
 }
 
 // Add adds a given key/value pair to the collection.
-// The key must not currently exist in the tree, otherwise, an error is thrown.
-// Use set to modify an already existing key/value pair.
+// The key must not currently exist in the tree, otherwise, an error is thrown,
+// instead use set to modify an already existing key/value pair.
 // The key location must also be in the known tree, otherwise an error is thrown.
 func (c *Collection) Add(key []byte, values ...interface{}) error {
 	if len(values) != len(c.fields) {
@@ -74,20 +74,23 @@ func (c *Collection) Add(key []byte, values ...interface{}) error {
 			cursor.key = []byte{}
 			cursor.branch()
 
+			var validNode, placeholder *node
 			if collisionStep {
-				cursor.children.right.known = true
-				cursor.children.right.label = collision.label
-				cursor.children.right.key = collision.key
-				cursor.children.right.values = collision.values
-
-				c.placeholder(cursor.children.left)
+				validNode = cursor.children.right
+				placeholder = cursor.children.left
 			} else {
-				cursor.children.left.known = true
-				cursor.children.left.label = collision.label
-				cursor.children.left.key = collision.key
-				cursor.children.left.values = collision.values
+				validNode = cursor.children.left
+				placeholder = cursor.children.right
+			}
 
-				c.placeholder(cursor.children.right)
+			validNode.known = true
+			validNode.label = collision.label
+			validNode.key = collision.key
+			validNode.values = collision.values
+
+			err := c.setPlaceholder(placeholder)
+			if err != nil {
+				return err
 			}
 		}
 	}
@@ -241,7 +244,10 @@ func (c *Collection) Remove(key []byte) error {
 				cursor.backup()
 			}
 
-			c.placeholder(cursor)
+			err := c.setPlaceholder(cursor)
+			if err != nil {
+				return err
+			}
 			break
 		}
 	}

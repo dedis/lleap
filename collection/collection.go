@@ -33,8 +33,14 @@ func New(fields ...Field) (collection Collection) {
 
 	collection.root.branch()
 
-	collection.placeholder(collection.root.children.left)
-	collection.placeholder(collection.root.children.right)
+	err := collection.setPlaceholder(collection.root.children.left)
+	if err != nil {
+		panic("error while generating left placeholder:"+err.Error())
+	}
+	err = collection.setPlaceholder(collection.root.children.right)
+	if err != nil {
+		panic("error while generating right placeholder:"+err.Error())
+	}
 	collection.update(collection.root)
 
 	return

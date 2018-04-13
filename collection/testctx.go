@@ -51,11 +51,7 @@ func (t testCtxVerifier) node(prefix string, collection *Collection, node *node)
 			return
 		}
 
-		expectedLabel, err := node.generateHash()
-		if err != nil {
-			t.test.Error(t.file, prefix, "error while generating hash:", err)
-			return
-		}
+		expectedLabel := node.generateHash()
 
 		if node.label != expectedLabel {
 			t.test.Error(t.file, prefix, "wrong leaf node label")
@@ -72,11 +68,7 @@ func (t testCtxVerifier) node(prefix string, collection *Collection, node *node)
 			return
 		}
 
-		expectedLabel, err := node.generateHash()
-		if err != nil {
-			t.test.Error(t.file, prefix, "error while generating hash:", err)
-			return
-		}
+		expectedLabel := node.generateHash()
 
 		if node.label != expectedLabel {
 			t.test.Error(t.file, prefix, "wrong internal node label")
