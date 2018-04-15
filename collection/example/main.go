@@ -2,33 +2,32 @@ package main
 
 import (
 	"fmt"
-
-	collections "github.com/dedis/lleap/collection"
+	"github.com/dedis/lleap/collection"
 )
 
 func main() {
 
-	collection := collections.New(collections.Data{})
+	Collection := collection.New(collection.Data{})
 
 	/*
 	 * CRUD
 	 */
 
 	// Creates a record
-	collection.Add([]byte("record"), []byte("data"))
+	Collection.Add([]byte("record"), []byte("data"))
 
 	// Remove throws an error on non-existing keys
-	err := collection.Remove([]byte("record-nonexisting"))
+	err := Collection.Remove([]byte("record-nonexisting"))
 	if err != nil {
 		fmt.Println("Expected error (key not found):", err)
 	}
 
 	// Creates a record with "data2", then changes to "data3"
-	collection.Set([]byte("record2"), []byte("data2"))
-	collection.SetField([]byte("record2"), 0, []byte("data3"))
+	Collection.Set([]byte("record2"), []byte("data2"))
+	Collection.SetField([]byte("record2"), 0, []byte("data3"))
 
 	// You cannot overwrite records
-	err = collection.Add([]byte("record2"), []byte("data4"))
+	err = Collection.Add([]byte("record2"), []byte("data4"))
 	if err != nil {
 		fmt.Println("Expected error (collision):", err)
 	}
@@ -39,11 +38,11 @@ func main() {
 
 	// Fetching existing data
 
-	record, record_fetching_error := collection.Get([]byte("record")).Record()
+	record, recordFetchingError := Collection.Get([]byte("record")).Record()
 	recordFound := record.Match()
 	data, recordNotFoundError := record.Values()
 
-	fmt.Println("Record fetching error (doesn't indicate the record exists or not): ", record_fetching_error)
+	fmt.Println("Record fetching error (doesn't indicate the record exists or not): ", recordFetchingError)
 	fmt.Println("Record found:", recordFound) // can also test record == nil
 	fmt.Println("Data retrieved:", string(data[0].([]byte)))
 	fmt.Println("Error while fetching the record:", recordNotFoundError)
@@ -54,11 +53,11 @@ func main() {
 	fmt.Println("Now fetching some non-existing data :")
 	fmt.Println("")
 
-	record, record_fetching_error = collection.Get([]byte("nonexisting-record")).Record()
+	record, recordFetchingError = Collection.Get([]byte("nonexisting-record")).Record()
 	recordFound = record.Match()
 	data, recordNotFoundError = record.Values()
 
-	fmt.Println("Record fetching error (doesn't indicate the record exists or not): ", record_fetching_error)
+	fmt.Println("Record fetching error (doesn't indicate the record exists or not): ", recordFetchingError)
 	fmt.Println("Record found:", recordFound) // can also test record == nil
 	fmt.Println("Error while fetching the record:", recordNotFoundError)
 
@@ -72,7 +71,7 @@ func main() {
 	fmt.Println("-------------")
 
 	// Verifier needs to have the same type (collections.Data{}) as the collection
-	verifier := collections.NewVerifier(collections.Data{})
+	verifier := collection.NewVerifier(collection.Data{})
 
 	// a verifier (who does not already have "record") does not accept updates that aren't part of a Proof
 	err = verifier.Add([]byte("record"), []byte("somedata"))
@@ -83,37 +82,37 @@ func main() {
 	fmt.Println("-------------")
 	fmt.Println("Now fetching some data in the verifier (who does not have any data):")
 
-	record, record_fetching_error = verifier.Get([]byte("nonexisting-record")).Record()
-	fmt.Println("Record fetching error (doesn't indicate the record exists or not): ", record_fetching_error)
+	record, recordFetchingError = verifier.Get([]byte("nonexisting-record")).Record()
+	fmt.Println("Record fetching error (doesn't indicate the record exists or not): ", recordFetchingError)
 
-	// you see the difference with collection/verifier, now record_fetching_error is set since verifier has no idea whether "nonexisting-record"
+	// you see the difference with collection/verifier, now recordFetchingError is set since verifier has no idea whether "nonexisting-record"
 	// exists or not.
 
 	fmt.Println("-------------")
 
 	// let's transfer some data to the verifier
-	collection = collections.New(collections.Data{})
-	verifier = collections.NewVerifier(collections.Data{})
+	Collection = collection.New(collection.Data{})
+	verifier = collection.NewVerifier(collection.Data{})
 
 	// proof that the record *doesn't* exist
-	proof1, err := collection.Get([]byte("record")).Proof()
+	proof1, err := Collection.Get([]byte("record")).Proof()
 
 	if err != nil {
 		panic(err)
 	}
 
-	collection.Add([]byte("record"), []byte("data"))
+	Collection.Add([]byte("record"), []byte("data"))
 
 	// proof that the record does exist
-	proof2, err := collection.Get([]byte("record")).Proof()
+	proof2, err := Collection.Get([]byte("record")).Proof()
 
 	if err != nil {
 		panic(err)
 	}
 
 	// The proof can be sent over the network:
-	// buffer := collection.Serialize(proof) // A []byte that contains a representation of proof.
-	// proofagain, deserialize_err := collection.Deserialize(buffer)
+	// buffer := Collection.Serialize(proof) // A []byte that contains a representation of proof.
+	// proofagain, deserialize_err := Collection.Deserialize(buffer)
 
 	if verifier.Verify(proof1) {
 		fmt.Println("Verifier accepted the proof about \"record\".")
