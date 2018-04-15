@@ -35,11 +35,11 @@ func New(fields ...Field) (collection Collection) {
 
 	err := collection.setPlaceholder(collection.root.children.left)
 	if err != nil {
-		panic("error while generating left placeholder:"+err.Error())
+		panic("error while generating left placeholder:" + err.Error())
 	}
 	err = collection.setPlaceholder(collection.root.children.right)
 	if err != nil {
-		panic("error while generating right placeholder:"+err.Error())
+		panic("error while generating right placeholder:" + err.Error())
 	}
 	collection.update(collection.root)
 

@@ -1,8 +1,8 @@
 package collection
 
 import (
-	"testing"
 	"encoding/binary"
+	"testing"
 )
 
 func TestCollectionEmptyCollection(test *testing.T) {

@@ -1,8 +1,8 @@
 package collection
 
 import (
-	"errors"
 	"crypto/sha256"
+	"errors"
 )
 
 // Same is used as a placeholder for the individual values that don't need to be updated

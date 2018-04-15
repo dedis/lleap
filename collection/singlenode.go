@@ -1,17 +1,17 @@
 package collection
 
 import (
-	"errors"
 	"crypto/sha256"
+	"errors"
 	"github.com/dedis/protobuf"
 )
 
-type toHash struct{
+type toHash struct {
 	IsLeaf bool
-	Key []byte
+	Key    []byte
 	Values [][]byte
 
-	LeftLabel [sha256.Size]byte
+	LeftLabel  [sha256.Size]byte
 	RightLabel [sha256.Size]byte
 }
 
@@ -80,7 +80,7 @@ func (n *node) generateHash() [sha256.Size]byte {
 func (data *toHash) hash() [sha256.Size]byte {
 	buff, err := protobuf.Encode(data)
 	if err != nil {
-		panic("couldn't encode: "+ err.Error())
+		panic("couldn't encode: " + err.Error())
 	}
 
 	return sha256.Sum256(buff)

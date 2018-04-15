@@ -1,15 +1,14 @@
 package collection
 
 import (
+	"crypto/sha256"
 	"errors"
 	"github.com/dedis/protobuf"
-	"crypto/sha256"
 )
 
 // dump
 
 type dump struct {
-
 	Key    []byte   `protobuf:"opt"`
 	Values [][]byte `protobuf:"opt"`
 
@@ -51,7 +50,7 @@ func (d *dump) consistent() bool {
 	if d.leaf() {
 		toEncode = toHash{true, d.Key, d.Values, [sha256.Size]byte{}, [sha256.Size]byte{}}
 	} else {
-		toEncode = toHash{false, []byte{}, d.Values,d.Children.Left, d.Children.Right}
+		toEncode = toHash{false, []byte{}, d.Values, d.Children.Left, d.Children.Right}
 	}
 
 	return d.Label == toEncode.hash()

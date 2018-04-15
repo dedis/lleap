@@ -1,10 +1,9 @@
 package collection
 
 import (
-	"testing"
 	"crypto/sha256"
+	"testing"
 )
-
 
 type testCtxStructure struct {
 	file string

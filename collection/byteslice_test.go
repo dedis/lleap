@@ -1,10 +1,10 @@
 package collection
 
 import (
-	"testing"
 	"crypto/sha256"
 	"encoding/hex"
 	"math/rand"
+	"testing"
 )
 
 func TestBytesliceEqual(test *testing.T) {

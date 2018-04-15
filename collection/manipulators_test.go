@@ -1,10 +1,10 @@
 package collection
 
 import (
-	"testing"
+	"crypto/sha256"
 	"encoding/binary"
 	"math/rand"
-	"crypto/sha256"
+	"testing"
 )
 
 func TestManipulatorsAdd(test *testing.T) {

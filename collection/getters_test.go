@@ -1,9 +1,9 @@
 package collection
 
 import (
-	"testing"
-	"encoding/binary"
 	"crypto/sha256"
+	"encoding/binary"
+	"testing"
 )
 
 func TestGettersConstructors(test *testing.T) {

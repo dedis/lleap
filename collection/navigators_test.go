@@ -1,10 +1,10 @@
 package collection
 
 import (
-	"testing"
+	"crypto/sha256"
 	"encoding/binary"
 	"sort"
-	"crypto/sha256"
+	"testing"
 )
 
 func TestNavigatorsConstructors(test *testing.T) {

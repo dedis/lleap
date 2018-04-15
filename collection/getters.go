@@ -1,8 +1,8 @@
 package collection
 
 import (
-	"errors"
 	"crypto/sha256"
+	"errors"
 )
 
 // Getter is the result of a get on a collection.

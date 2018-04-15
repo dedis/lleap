@@ -1,8 +1,8 @@
 package collection
 
 import (
-	"errors"
 	"encoding/binary"
+	"errors"
 )
 
 // Enums
@@ -18,10 +18,9 @@ const (
 // It describes how the type is encoded, how it is decoded,
 // how it propagates up the tree and other needed functionality.
 type Field interface {
-	Encode(generic interface{}) []byte // Describes how the type is encoded into bytes
+	Encode(generic interface{}) []byte      // Describes how the type is encoded into bytes
 	Decode(raw []byte) (interface{}, error) // Inverse of Encode. Describes how to decode the byte to the original type
-	Placeholder() []byte // returns the byte representation of a placeholder (no value)
-
+	Placeholder() []byte                    // returns the byte representation of a placeholder (no value)
 
 	// returns the representation in byte of a parent value given its two children values.
 	// Used to store data on non-leaf node.

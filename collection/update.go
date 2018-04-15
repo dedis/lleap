@@ -1,7 +1,8 @@
 package collection
 
-import ("errors"
+import (
 	"crypto/sha256"
+	"errors"
 )
 
 // Interfaces

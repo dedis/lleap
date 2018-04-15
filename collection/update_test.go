@@ -1,8 +1,8 @@
 package collection
 
 import (
-	"testing"
 	"crypto/sha256"
+	"testing"
 )
 
 func TestUpdateProxy(test *testing.T) {

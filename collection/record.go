@@ -2,7 +2,6 @@ package collection
 
 import "errors"
 
-
 // Record holds the result of a search query.
 // It has getters to see the query, if the search was successful, the key and the value.
 type Record struct {

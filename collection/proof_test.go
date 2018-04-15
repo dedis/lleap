@@ -1,9 +1,9 @@
 package collection
 
 import (
-	"testing"
 	"crypto/sha256"
 	"encoding/binary"
+	"testing"
 )
 
 func TestProofDumpNode(test *testing.T) {
